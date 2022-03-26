@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+    <!-- 引入element-ui的css -->
+    <link rel="stylesheet" th:href="@{/lib/element-ui/2.13.0/index.css}">
+
+    <!-- 引入vue和vue-i18n的js -->
+    <script th:src="@{/lib/vue/vue.min.js}"></script>
+    <script th:src="@{/lib/vue/vue-i18n.js}"></script>
+    <!-- 引入axios和qs的js -->
+    <script th:src="@{/lib/axios.min.js}"></script>
+    <script th:src="@{/lib/qs.min.js}"></script>
+    <!-- 引入element-ui的js -->
+    <script th:src="@{/lib/element-ui/2.13.0/index.js}"></script>
+
+    <title>Mock平台</title>
+
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+        }
+
+        .text {
+            font-size: 14px;
+        }
+
+        .item {
+            margin-bottom: 18px;
+        }
+
+        .clearfix:before,
+        .clearfix:after {
+            display: table;
+            content: "";
+        }
+        .clearfix:after {
+            clear: both
+        }
+    </style>
+</head>
+
+<body>
+<div id="app" style="height: 100%;">
+    <el-container style="height: 100%;">
+        <el-header style="padding: 0;">
+            <el-row style="background-color:#00162A; height: 60px">
+                <el-col :span="8">
+						<span style="color: white;font-size: 30px;font-weight: bold;line-height: 60px;margin-left: 20px;cursor: pointer"
+                              @click="freshWeb">
+							<i class="el-icon-platform-eleme"></i>&nbsp;Mock平台
+						</span>
+                </el-col>
+                <el-col :span="14">
+                    <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelect"
+                             background-color="#00162A" text-color="#fff" active-text-color="#ffd04b">
+                        <el-menu-item index="myproject">
+                            <span style="font-weight: bold">我的项目</span>
+                        </el-menu-item>
+                        <el-menu-item index="mydata">
+                            <span style="font-weight: bold">数据</span>
+                        </el-menu-item>
+                        <el-menu-item index="myother">
+                            <span style="font-weight: bold">其他</span>
+                        </el-menu-item>
+                    </el-menu>
+                </el-col>
+                <el-col :span="2" style="padding-top: 10px">
+                    <el-dropdown @command="handleDropdown">
+                        <div>
+                            <i class="el-icon-caret-bottom" style="color: white;float: right;margin-top: 15px"></i>
+                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                       style="float: right;margin-right: 1px">
+                            </el-avatar>
+                        </div>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="userinfo">个人信息</el-dropdown-item>
+                            <el-dropdown-item command="exit">退出</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </el-col>
+            </el-row>
+        </el-header>
+
+        <el-main style="background-color: #EFF3F5;">
+
+            <iframe width="100%" height="100%" frameborder="no" border="0" marginwidth="0" marginheight="0" :src="optionsHref">
+
+            </iframe>
+
+        </el-main>
+
+    </el-container>
+</div>
+</body>
+
+<script type="text/javascript" th:inline="javascript">
+    let ctx = /*[[@{/}]]*/'';
+
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                activeIndex: 'myproject',
+                optionsHref: ctx + 'project/index',
+                items: [],
+            }
+        },
+        methods: {
+            freshWeb: function () {
+                window.location.reload();
+            },
+            handleSelect: function (key, keyPath) {
+                if (key === 'myproject') {
+                    this.optionsHref = ctx + 'project/index'
+                } else if (key === 'mydata') {
+                    this.$message('拼命开发中！');
+                } else if (key === 'myother') {
+                    this.optionsHref = 'https://www.runoob.com/'
+                }
+            },
+            handleDropdown: function (command) {
+                if (command === 'exit') {
+                    axios({
+                        method: 'get',
+                        url: ctx + "logout"
+                    }).then((res) => {
+                        if (res.data.code === 200) {
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'success'
+                            });
+                            setTimeout(()=> {
+                                window.location.href = ctx + "login";
+                            }, 600);
+                        } else {
+                            this.$message.error(res.data.msg);
+                        }
+                    }).catch((res) => {
+                        console.log(res);
+                    })
+                } else if (command === 'userinfo') {
+                    this.$message('click on item ' + command);
+                }
+            }
+        },
+
+        mounted: function() {
+
+        }
+    })
+
+</script>
+
+</html>

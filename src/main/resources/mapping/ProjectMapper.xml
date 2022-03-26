@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bluewind.mock.module.mapper.ProjectMapper">
+    <resultMap id="SysProjectInfo" type="com.bluewind.mock.module.model.SysProjectInfo">
+        <id column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="project_id" jdbcType="VARCHAR" property="projectId"/>
+        <result column="project_name" jdbcType="VARCHAR" property="projectName"/>
+        <result column="introduce" jdbcType="VARCHAR" property="introduce"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+    </resultMap>
+
+    <select id="list" resultMap="SysProjectInfo" parameterType="java.lang.String">
+        select * from sys_project_info where user_id = #{_parameter}
+    </select>
+
+</mapper>

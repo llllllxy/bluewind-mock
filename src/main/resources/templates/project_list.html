@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+    <!-- 引入element-ui的css -->
+    <link rel="stylesheet" th:href="@{/lib/element-ui/2.13.0/index.css}">
+
+    <!-- 引入vue和vue-i18n的js -->
+    <script th:src="@{/lib/vue/vue.min.js}"></script>
+    <script th:src="@{/lib/vue/vue-i18n.js}"></script>
+    <!-- 引入axios和qs的js -->
+    <script th:src="@{/lib/axios.min.js}"></script>
+    <script th:src="@{/lib/qs.min.js}"></script>
+    <!-- 引入element-ui的js -->
+    <script th:src="@{/lib/element-ui/2.13.0/index.js}"></script>
+
+    <script th:src="@{/lib/clipboard.min.js}"></script>
+
+    <title>Mock平台</title>
+
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+        }
+
+        .text {
+            font-size: 14px;
+        }
+
+        .item {
+            margin-bottom: 18px;
+        }
+
+        .clearfix:before,
+        .clearfix:after {
+            display: table;
+            content: "";
+        }
+
+        .clearfix:after {
+            clear: both
+        }
+    </style>
+</head>
+
+<body>
+<div id="app" style="height: 100%;">
+    <div>
+        <el-row>
+            <el-col :span="6" v-for="(item,index) in items"
+                    style="margin-bottom:25px;position: relative;">
+
+                <el-card style="width: 94%;margin-left: 3%" shadow="hover">
+                    <div slot="header" class="clearfix">
+                        <span style="font-weight: bold">{{item.projectName}}</span>
+                        <el-button style="float: right; padding: 3px 0" type="text">进入项目</el-button>
+                    </div>
+                    <div class="text item">
+                        <span>描述：{{item.introduce}}</span>
+                    </div>
+                    <div class="text item">
+                        <span>路径：{{item.path}}</span>
+                    </div>
+                    <div class="text">
+                        <span>操作：</span>
+                        <el-button-group>
+                            <el-tooltip effect="light" content="复制项目地址" placement="bottom">
+                                <el-button size="small" icon="el-icon-connection"
+                                           @click="copy($event, item)"></el-button>
+                            </el-tooltip>
+                            <el-tooltip effect="light" content="编辑项目" placement="bottom">
+                                <el-button size="small" icon="el-icon-edit"></el-button>
+                            </el-tooltip>
+                            <el-tooltip effect="light" content="删除项目" placement="bottom">
+                                <el-button size="small" icon="el-icon-delete"></el-button>
+                            </el-tooltip>
+                        </el-button-group>
+                    </div>
+                </el-card>
+            </el-col>
+
+        </el-row>
+    </div>
+</div>
+</body>
+
+<script type="text/javascript" th:inline="javascript">
+    let ctx = /*[[@{/}]]*/'';
+
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                activeIndex: 'myproject',
+                optionsHref: ctx + 'project/index',
+                items: [],
+            }
+        },
+        methods: {
+            getProjectList: function () {
+                axios({
+                    method: 'get',
+                    url: ctx + "project/list"
+                }).then((res) => {
+                    if (res.data.code === 200) {
+                        this.items = res.data.data;
+                    } else {
+                        this.$message.error(res.data.msg);
+                    }
+                }).catch((res) => {
+                    console.log(res);
+                })
+            },
+            getIpHost: function () {
+                return window.location.host + ':' + window.location.port + '/';
+            },
+            copy: function (event, item) {
+                this.handleClipboard(item, event);
+            },
+            handleClipboard(item, event) {
+                let text = this.getIpHost() + item.projectId + item.path;
+                const clipboard = new ClipboardJS(event.target, {
+                    text: () => text
+                });
+                clipboard.on('success', () => {
+                    this.clipboardSuccess(text);
+                    clipboard.destroy();
+                });
+                clipboard.on('error', () => {
+                    this.clipboardError();
+                    clipboard.destroy();
+                });
+                clipboard.onClick(event);
+            },
+            clipboardSuccess(text) {
+                this.$message({
+                    message: '已复制到粘贴板',
+                    type: 'success'
+                });
+            },
+            clipboardError() {
+                this.$message.error('Copy error');
+            },
+        },
+
+        mounted: function () {
+            this.getProjectList();
+        }
+    })
+
+</script>
+
+</html>
