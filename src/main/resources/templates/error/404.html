@@ -6,8 +6,7 @@
     <title>Mock平台</title>
     <link rel="icon" th:href="@{/images/favicon.ico}">
     <link rel="stylesheet" th:href="@{/css/404.css}" type="text/css">
-    <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"
-            type="application/javascript"></script>
+    <script th:src="@{/lib/jquery.min.js}" type="application/javascript"></script>
     <script type="text/javascript">
         $(function () {
             var h = $(window).height();
@@ -45,15 +44,15 @@
 </head>
 <body>
 <div class="mianBox">
-    <img th:src="@{/images/yun0.png}" alt="" class="yun yun0"/>
-    <img th:src="@{/images/yun1.png}" alt="" class="yun yun1"/>
-    <img th:src="@{/images/yun2.png}" alt="" class="yun yun2"/>
-    <img th:src="@{/images/bird.png}" alt="" class="bird"/>
-    <img th:src="@{/images/san.png}" alt="" class="san"/>
+    <img th:src="@{/error/images/yun0.png}" alt="" class="yun yun0"/>
+    <img th:src="@{/error/images/yun1.png}" alt="" class="yun yun1"/>
+    <img th:src="@{/error/images/yun2.png}" alt="" class="yun yun2"/>
+    <img th:src="@{/error/images/bird.png}" alt="" class="bird"/>
+    <img th:src="@{/error/images/san.png}" alt="" class="san"/>
     <div class="tipInfo">
         <div class="in">
             <div class="textThis">
-                <h2>500服务器错误！</h2>
+                <h2>404错误！</h2>
                 <p>
                     <span>页面自动<a id="href" th:href="@{/}">跳转</a></span>
                     <span>等待<b id="wait">6</b>秒</span></p>
