@@ -23,6 +23,19 @@
     <script th:src="@{/lib/md5.js}"></script>
 
     <style>
+        body {
+            background-image: url("[[@{/}]]images/login-background.jpg");
+            /* 背景图垂直、水平均居中 */
+            background-position: center center;
+            /* 背景图不平铺 */
+            background-repeat: no-repeat;
+            /* 当内容高度大于图片高度时，背景图像的位置相对于viewport固定 */
+            background-attachment: fixed;
+            /* 让背景图基于容器大小伸缩 */
+            background-size: cover;
+            /* 设置背景颜色，背景图加载过程中会显示背景色 */
+            background-color: #464646;
+        }
         .login-container {
             width: 100%;
             height: 100%;
@@ -54,7 +67,7 @@
                  label-position="left"
                  label-width="0px"
                  class="demo-ruleForm login-page">
-            <h3 class="title">系统登录</h3>
+            <h3 class="title">Mock平台-登陆</h3>
             <el-form-item prop="username">
                 <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="用户名"></el-input>
             </el-form-item>
