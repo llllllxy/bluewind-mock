@@ -28,6 +28,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         excludePathList.add("/doLogin");
         excludePathList.add("/register");
         excludePathList.add("/doRegister");
+        excludePathList.add("/api/**"); // 开发api上下文，作为mock公共上下文
         excludePathList.add("/static/**");//静态资源不拦截
 
         // 开放静态文件
