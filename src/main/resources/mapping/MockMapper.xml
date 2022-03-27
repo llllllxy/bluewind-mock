@@ -16,7 +16,7 @@
     </resultMap>
 
     <select id="list" resultMap="SysMockInfo" parameterType="java.lang.String">
-        select mock_id, project_id, method, introduce, url, mockjs_flag
+        select mock_id, project_id, method, introduce, url, mockjs_flag, create_time, update_time
         from sys_mock_info
         where project_id = #{_parameter}
     </select>

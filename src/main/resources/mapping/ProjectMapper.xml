@@ -17,4 +17,9 @@
         select * from sys_project_info where user_id = #{_parameter}
     </select>
 
+    <select id="getOne" resultMap="SysProjectInfo" parameterType="com.bluewind.mock.module.model.SysProjectInfo">
+        select * from sys_project_info where project_id = #{projectId} and path = #{path}
+    </select>
+
+
 </mapper>

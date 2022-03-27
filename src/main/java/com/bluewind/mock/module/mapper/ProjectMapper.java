@@ -13,4 +13,6 @@ import java.util.List;
 @Repository
 public interface ProjectMapper {
     List<SysProjectInfo> list(String userId);
+
+    SysProjectInfo getOne(SysProjectInfo sysProjectInfo);
 }

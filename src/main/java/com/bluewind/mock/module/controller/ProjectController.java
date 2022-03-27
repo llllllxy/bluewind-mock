@@ -36,7 +36,7 @@ public class ProjectController extends BaseController {
 
     @GetMapping("/list")
     @ResponseBody
-    public Result list() throws UnknownHostException {
+    public Result list() {
         List<SysProjectInfo> resultList = projectService.list(getUserId());
         return Result.ok("退出登陆成功！",resultList);
     }

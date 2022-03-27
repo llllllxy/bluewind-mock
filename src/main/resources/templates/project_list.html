@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 
     <!-- 引入element-ui的css -->
-    <link rel="stylesheet" th:href="@{/lib/element-ui/2.13.0/index.css}">
+    <link rel="stylesheet" th:href="@{/lib/element-ui/theme-chalk/index.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
 
     <!-- 引入vue和vue-i18n的js -->
     <script th:src="@{/lib/vue/vue.min.js}"></script>
@@ -16,7 +17,7 @@
     <script th:src="@{/lib/axios.min.js}"></script>
     <script th:src="@{/lib/qs.min.js}"></script>
     <!-- 引入element-ui的js -->
-    <script th:src="@{/lib/element-ui/2.13.0/index.js}"></script>
+    <script th:src="@{/lib/element-ui/index.js}"></script>
 
     <script th:src="@{/lib/clipboard.min.js}"></script>
 
@@ -45,6 +46,22 @@
         .clearfix:after {
             clear: both
         }
+
+        .app-container {
+            padding: 0px 10px 10px 10px;
+        }
+        .searchDiv {
+            margin-bottom: 15px;
+        }
+        .width1 {
+            width: 220px;
+            margin-right: 10px;
+        }
+
+        .pagination-container {
+            padding: 10px 16px 16px 16px;
+            float: left;
+        }
     </style>
 </head>
 
@@ -58,7 +75,7 @@
                 <el-card style="width: 94%;margin-left: 3%" shadow="hover">
                     <div slot="header" class="clearfix">
                         <span style="font-weight: bold">{{item.projectName}}</span>
-                        <el-button style="float: right; padding: 3px 0" type="text">进入项目</el-button>
+                        <el-button @click="toMockList(item)" style="float: right; padding: 3px 0" type="text">进入项目</el-button>
                     </div>
                     <div class="text item">
                         <span>描述：{{item.introduce}}</span>
@@ -86,6 +103,74 @@
 
         </el-row>
     </div>
+
+    <!-- 弹出 dialog Mock列表-->
+    <el-dialog title="Mock列表" :visible.sync="dialogVisible" :fullscreen="true">
+        <div class="app-container">
+            <div class="searchDiv">
+                <el-form ref="mockListQueryForm" :inline="true" :model="queryParams" class="demo-form-inline">
+                    <el-form-item label="url路径">
+                        <el-input type="text" placeholder="请输入url路径" clearable v-model="queryParams.url"
+                                  class="width1"></el-input>
+                    </el-form-item>
+                    <el-form-item label="接口类型">
+                        <el-select v-model="queryParams.method" placeholde="请选择接口类型" clearable class="width1">
+                            <el-option v-for="item in methodOptions" :label="item.label" :value="item.value"
+                                       :key="item.value"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-button type="primary" icon="el-icon-search" @click="searchMockList()">搜索</el-button>
+                </el-form>
+
+                <el-row :gutter="10" class="mb8">
+                    <el-col :span="1.5">
+                        <el-button type="danger" icon="el-icon-delete" @click="delLog()"
+                                   v-has-permission="['monitor:loginlog:delete']">新增
+                        </el-button>
+                        <el-button type="danger" icon="el-icon-delete" @click="delLog()"
+                                   v-has-permission="['monitor:loginlog:delete']">删除
+                        </el-button>
+                    </el-col>
+                </el-row>
+            </div>
+
+            <el-table :data="mockList" v-loading="loading" stripe>
+                <el-table-column label="序号" type="index" width="100" align="center">
+                    <template slot-scope="scope">
+                        {{(queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="url" label="url路径"></el-table-column>
+                <el-table-column prop="method" label="请求类型" width="210">
+                    <template slot-scope="scope">
+                        <el-tag :type="scope.row.method | tagClass">
+                            {{scope.row.method | methodText(methodTextDict)}}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="introduce" label="简介"></el-table-column>
+                <el-table-column prop="createTime" label="创建时间"></el-table-column>
+                <el-table-column prop="updateTime" label="更新时间"></el-table-column>
+                <el-table-column label="操作" width="100" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="danger" size="mini" @click="delOneLog(scope.row.logId)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <el-pagination class="pagination-container" background
+                    :current-page.sync="queryParams.pageNum"
+                    :page-size.sync="queryParams.pageSize"
+                    :page-sizes="[5,10,20,50]"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="total"
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+            />
+        </div>
+    </el-dialog>
+
 </div>
 </body>
 
@@ -97,8 +182,45 @@
         data: function () {
             return {
                 activeIndex: 'myproject',
-                optionsHref: ctx + 'project/index',
                 items: [],
+                dialogVisible: false,
+                currentProjectId: '',
+                // 遮罩层
+                loading: false,
+                // 表格数据
+                mockList: [],
+                // 总条数
+                total: 0,
+                // 查询参数
+                queryParams: {
+                    pageNum: 1,
+                    pageSize: 5,
+                    url: undefined,
+                    method: undefined
+                },
+                methodOptions: [
+                    { label: 'GET', value: 'GET' },
+                    { label: 'POST', value: 'POST' },
+                ],
+                methodTextDict: {
+                    'GET': 'GET',
+                    'POST': 'POST'
+                }
+            }
+        },
+        filters: {
+            methodText(val, methodTextDict) {
+                return methodTextDict[val];
+            },
+            tagClass(val) {
+                if (val === undefined) {
+                    return
+                }
+                if (val === 'POST') {
+                    return 'success'
+                } else if (val === 'GET') {
+                    return 'info'
+                }
             }
         },
         methods: {
@@ -116,8 +238,63 @@
                     console.log(res);
                 })
             },
+            toMockList(item) {
+                this.currentProjectId = item.projectId;
+                // 每次打开，重置查询条件
+                this.queryParams = {
+                    pageNum: 1,
+                    pageSize: 5,
+                    url: undefined,
+                    method: undefined
+                };
+                this.dialogVisible = true;
+                this.searchMockList();
+            },
+            searchMockList() {
+                this.queryParams.pageNum = 1;
+                this.getMockList();
+            },
+            handleSizeChange() {
+                this.getMockList();
+            },
+            handleCurrentChange() {
+                this.getMockList();
+            },
+            getMockList() {
+                this.loading = true;
+                this.queryParams.projectId = this.currentProjectId;
+                axios({
+                    method: 'post',
+                    url: ctx + "mock/list",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    data: Qs.stringify(this.queryParams)
+                }).then((res) => {
+                    this.loading = false;
+                    if (res.data.code === 200) {
+                        this.mockList = res.data.data.rows;
+                        this.total = res.data.data.total;
+                    } else {
+                        this.$message.error(res.data.msg);
+                    }
+                }).catch((res) => {
+                    this.loading = false;
+                    console.log(res);
+                })
+            },
+            delLog() {
+
+            },
+            delOneLog(logId) {
+
+            },
+            emptyLog() {
+
+            },
+
             getIpHost: function () {
-                return window.location.host + ':' + window.location.port + '/';
+                return 'http://' + window.location.host + '/';
             },
             copy: function (event, item) {
                 this.handleClipboard(item, event);

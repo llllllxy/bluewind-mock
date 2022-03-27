@@ -20,4 +20,8 @@ public class ProjectService {
     public List<SysProjectInfo> list(String userId) {
         return projectMapper.list(userId);
     }
+
+    public SysProjectInfo getOne(SysProjectInfo sysProjectInfo) {
+        return projectMapper.getOne(sysProjectInfo);
+    }
 }
