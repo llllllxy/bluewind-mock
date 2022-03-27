@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bluewind.mock.module.mapper.MockMapper">
+    <resultMap id="SysMockInfo" type="com.bluewind.mock.module.model.SysMockInfo">
+        <id column="mock_id" jdbcType="VARCHAR" property="mockId"/>
+        <result column="project_id" jdbcType="VARCHAR" property="projectId"/>
+        <result column="method" jdbcType="CHAR" property="method"/>
+        <result column="introduce" jdbcType="VARCHAR" property="introduce"/>
+        <result column="json_data" jdbcType="VARCHAR" property="jsonData"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="mockjs_flag" jdbcType="CHAR" property="mockjsFlag"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+    </resultMap>
+
+    <select id="list" resultMap="SysMockInfo" parameterType="java.lang.String">
+        select mock_id, project_id, method, introduce, url, mockjs_flag
+        from sys_mock_info
+        where project_id = #{_parameter}
+    </select>
+
+    <select id="getOne" resultMap="SysMockInfo" parameterType="com.bluewind.mock.module.model.SysMockInfo">
+        select project_id, method, json_data, mockjs_flag
+        from sys_mock_info
+        where project_id = #{projectId}
+        and url = #{url}
+    </select>
+</mapper>
