@@ -5,7 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-
+    <meta name="keywords" content="mock,Mock,在线mock服务,前后端分离,在线mock,在线接口Mock平台"/>
+    <meta name="description" content="Bluewind Mock 是一个可视化, 易操作的能快速生成模拟数据的再次按Mock服务."/>
+    <link rel="icon" th:href="@{/images/favicon.ico}">
     <!-- 引入element-ui的css -->
     <link rel="stylesheet" th:href="@{/lib/element-ui/theme-chalk/index.css}">
     <link rel="stylesheet" th:href="@{/css/public.css}">
@@ -46,6 +48,24 @@
         .clearfix:after {
             clear: both
         }
+
+
+        .right-bottom-btn {
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+            width: 60px;
+            height: 60px;
+            line-height: 70px;
+            text-align: center;
+            color: #FFF;
+            z-index: 999;
+            background: #66B1FF;
+            cursor: pointer;
+            border-radius: 30px;
+            box-shadow: 0px 0px 20px #000;
+        }
+
 
         .app-container {
             padding: 0px 10px 10px 10px;
@@ -104,8 +124,38 @@
         </el-row>
     </div>
 
+
+    <!-- 右侧悬浮按钮 -->
+    <div class="right-bottom-btn">
+        <i class="el-icon-plus" style="color: white; font-size: 30px; font-weight: bold"></i>
+    </div>
+
+    <!-- 添加或修改项目dialog框 -->
+    <el-dialog :title="projectDialogTitle" :visible.sync="projectDialog" width="500px" append-to-body>
+        <div class="app-container">
+            <el-form ref="projectForm" :model="projectForm" :rules="projectFormRules" label-width="80px">
+                <el-form-item label="项目ID" prop="projectId" v-if="ifProjectId">
+                    <el-input v-model="projectForm.projectId" disabled/>
+                </el-form-item>
+                <el-form-item label="项目名称" prop="projectName">
+                    <el-input v-model="projectForm.projectName" placeholder="请输入项目名称" />
+                </el-form-item>
+                <el-form-item label="项目路径" prop="path">
+                    <el-input v-model="projectForm.path" placeholder="请输入项目路径" />
+                </el-form-item>
+                <el-form-item label="介绍" prop="introduce">
+                    <el-input v-model="projectForm.introduce" type="textarea" placeholder="请输入介绍" />
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="submitProjectForm">确 定</el-button>
+                <el-button @click="cancelProjectForm">取 消</el-button>
+            </div>
+        </div>
+    </el-dialog>
+
     <!-- 弹出 dialog Mock列表-->
-    <el-dialog title="Mock列表" :visible.sync="dialogVisible" :fullscreen="true">
+    <el-dialog title="Mock列表" :visible.sync="mockListDialog" :fullscreen="true">
         <div class="app-container">
             <div class="searchDiv">
                 <el-form ref="mockListQueryForm" :inline="true" :model="queryParams" class="demo-form-inline">
@@ -184,22 +234,46 @@
         data: function () {
             return {
                 activeIndex: 'myproject',
+                // 项目列表
                 items: [],
-                dialogVisible: false,
+                projectDialogTitle: '',
+                projectDialog: false,
+                // 是否显示ProjectId输入框
+                ifProjectId: true,
+                // 项目表单数据
+                projectForm: {},
+                // 项目表单数据校验规则
+                projectFormRules: {
+                    projectId: [
+                        { required: true, message: "项目ID不能为空", trigger: "blur" }
+                    ],
+                    projectName: [
+                        { required: true, message: "项目名称不能为空", trigger: "blur" }
+                    ],
+                    path: [
+                        { required: true, message: "项目路径不能为空，并且只有有一个 / ", trigger: "blur" }
+                    ]
+                },
+
+
+                // 控制mock列表的dialog的显示
+                mockListDialog: false,
+                // 当前选中的项目ID
                 currentProjectId: '',
                 // 遮罩层
                 loading: false,
-                // 表格数据
+                // mock表格数据
                 mockList: [],
-                // 总条数
+                // mock表格总条数
                 total: 0,
-                // 查询参数
+                // mock表格查询参数
                 queryParams: {
                     pageNum: 1,
                     pageSize: 5,
                     url: undefined,
                     method: undefined
                 },
+                // mock表格字典值
                 methodOptions: [
                     { label: 'GET', value: 'GET' },
                     { label: 'POST', value: 'POST' },
@@ -240,6 +314,29 @@
                     console.log(res);
                 })
             },
+            resetProjectForm() {
+                this.projectForm = {
+                    projectId: undefined,
+                    projectName: undefined,
+                    path: undefined,
+                    introduce: undefined,
+                }
+            },
+            // 表单重置
+            resetForm(refName) {
+                if (this.$refs[refName]) {
+                    this.$refs[refName].resetFields();
+                }
+            },
+            // 新增或者修改项目的‘确认’按钮
+            submitProjectForm() {
+
+            },
+            // 新增或者修改项目的‘取消’按钮
+            cancelProjectForm() {
+
+            },
+
             toMockList(item) {
                 this.currentProjectId = item.projectId;
                 // 每次打开，重置查询条件
@@ -249,7 +346,7 @@
                     url: undefined,
                     method: undefined
                 };
-                this.dialogVisible = true;
+                this.mockListDialog = true;
                 this.searchMockList();
             },
             searchMockList() {
