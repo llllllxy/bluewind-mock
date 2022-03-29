@@ -15,10 +15,25 @@
         <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
     </resultMap>
 
-    <select id="list" resultMap="SysMockInfo" parameterType="java.lang.String">
-        select mock_id, project_id, method, introduce, url, mockjs_flag, create_time, update_time
+    <select id="list" resultMap="SysMockInfo" parameterType="java.util.Map">
+        select mock_id, project_id, method, introduce,
+        url, mockjs_flag, create_time, update_time
         from sys_mock_info
-        where project_id = #{_parameter}
+        where project_id = #{projectId}
+        <if test="method != null and method != ''">
+            and method like CONCAT('%',#{method},'%')
+        </if>
+        <if test="url != null and url != ''">
+            and url like CONCAT('%',#{url},'%')
+        </if>
+        <choose>
+            <when test="sortName != null and sortName != '' and sortOrder != null and sortOrder != ''">
+                order by ${sortName} ${sortOrder}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="getOne" resultMap="SysMockInfo" parameterType="com.bluewind.mock.module.model.SysMockInfo">

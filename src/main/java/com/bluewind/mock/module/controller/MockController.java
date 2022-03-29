@@ -36,6 +36,8 @@ public class MockController extends BaseController {
     public Result list(@RequestParam("projectId") String projectId,
                        @RequestParam("pageNum") Integer pageNum,
                        @RequestParam("pageSize") Integer pageSize,
+                       @RequestParam(required = false, defaultValue = "", value = "url") String url,
+                       @RequestParam(required = false, defaultValue = "", value = "method") String method,
                        @RequestParam(required = false, defaultValue = "", value = "sortName") String sortName,
                        @RequestParam(required = false, defaultValue = "", value = "sortOrder") String sortOrder) {
         //分页查询
@@ -43,8 +45,14 @@ public class MockController extends BaseController {
         if (logger.isInfoEnabled()) {
             logger.info("MockController -- list -- 页面大小："+pageSize+"--页码:" + pageNum);
         }
+        Map<String, String> paraMap = new HashMap<>();
+        paraMap.put("projectId", projectId);
+        paraMap.put("method", method);
+        paraMap.put("url", url);
+        paraMap.put("sortName", sortName);
+        paraMap.put("sortOrder", sortOrder);
 
-        List<SysMockInfo> mockList = mockService.list(projectId);
+        List<SysMockInfo> mockList = mockService.list(paraMap);
 
         PageInfo<SysMockInfo> pageinfo = new PageInfo<>(mockList);
 
@@ -55,7 +63,7 @@ public class MockController extends BaseController {
         result.put(RESULT_ROWS, rows);
         result.put(RESULT_TOTLAL, total);
 
-        return Result.ok("退出登陆成功！", result);
+        return Result.ok("获取mock列表成功！", result);
     }
 
 }

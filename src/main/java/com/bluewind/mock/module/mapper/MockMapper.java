@@ -4,6 +4,7 @@ import com.bluewind.mock.module.model.SysMockInfo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author liuxingyu01
@@ -13,7 +14,7 @@ import java.util.List;
 @Repository
 public interface MockMapper {
 
-    List<SysMockInfo> list(String projectId);
+    List<SysMockInfo> list(Map<String, String> paraMap);
 
     SysMockInfo getOne(SysMockInfo sysMockInfo);
 }

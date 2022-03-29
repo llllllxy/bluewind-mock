@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author liuxingyu01
@@ -19,8 +20,8 @@ public class MockService {
     private MockMapper mockMapper;
 
 
-    public List<SysMockInfo> list(String projectId) {
-        return mockMapper.list(projectId);
+    public List<SysMockInfo> list(Map<String, String> paraMap) {
+        return mockMapper.list(paraMap);
     }
 
     public SysMockInfo getOne(SysMockInfo sysMockInfo) {

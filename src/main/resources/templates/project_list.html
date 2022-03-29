@@ -169,7 +169,7 @@
     </el-dialog>
 
     <!-- 弹出 dialog Mock列表-->
-    <el-dialog title="Mock列表" :visible.sync="mockListDialog" :fullscreen="true">
+    <el-dialog title="Mock列表" :visible.sync="mockListDialog" :fullscreen="true" append-to-body>
         <div class="app-container">
             <div class="searchDiv">
                 <el-form ref="mockListQueryForm" :inline="true" :model="queryParams" class="demo-form-inline">
@@ -206,7 +206,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="url" label="url路径"></el-table-column>
-                <el-table-column prop="method" label="请求类型" width="210">
+                <el-table-column prop="method" label="请求类型" width="100" align="center">
                     <template slot-scope="scope">
                         <el-tag :type="scope.row.method | tagClass">
                             {{scope.row.method | methodText(methodTextDict)}}
@@ -214,11 +214,18 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="introduce" label="简介"></el-table-column>
+                <el-table-column prop="mockjsFlag" label="启用MockJs" width="200" align="center">
+                    <template slot-scope="scope">
+                        <el-tag :type="scope.row.mockjsFlag | tagClass2">
+                            {{scope.row.mockjsFlag | mockjsFlagText(mockjsFlagTextDict)}}
+                        </el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="createTime" label="创建时间"></el-table-column>
                 <el-table-column prop="updateTime" label="更新时间"></el-table-column>
                 <el-table-column label="操作" width="240" align="center">
                     <template slot-scope="scope">
-                        <el-button type="info" icon="el-icon-document-copy" size="mini" @click="delOneLog(scope.row.logId)"></el-button>
+                        <el-button type="info" icon="el-icon-document-copy" size="mini" @click="copyMockUrl($event, scope.row)"></el-button>
                         <el-button type="primary" icon="el-icon-edit" size="mini" @click="delOneLog(scope.row.logId)"></el-button>
                         <el-button type="danger" icon="el-icon-delete" size="mini" @click="delOneLog(scope.row.logId)"></el-button>
                     </template>
@@ -294,12 +301,19 @@
                 methodTextDict: {
                     'GET': 'GET',
                     'POST': 'POST'
-                }
+                },
+                mockjsFlagTextDict: {
+                    '0': '关闭',
+                    '1': '开启'
+                },
             }
         },
         filters: {
             methodText(val, methodTextDict) {
                 return methodTextDict[val];
+            },
+            mockjsFlagText(val, mockjsFlagTextDict) {
+                return mockjsFlagTextDict[val];
             },
             tagClass(val) {
                 if (val === undefined) {
@@ -310,7 +324,17 @@
                 } else if (val === 'GET') {
                     return 'info'
                 }
-            }
+            },
+            tagClass2(val) {
+                if (val === undefined) {
+                    return
+                }
+                if (val === '1') {
+                    return 'success'
+                } else if (val === '0') {
+                    return 'info'
+                }
+            },
         },
         methods: {
             getProjectList: function () {
@@ -471,6 +495,10 @@
                     if (res.data.code === 200) {
                         this.mockList = res.data.data.rows;
                         this.total = res.data.data.total;
+                        this.$message({
+                            message: res.data.msg,
+                            type: 'success'
+                        });
                     } else {
                         this.$message.error(res.data.msg);
                     }
@@ -485,18 +513,25 @@
             delOneLog(logId) {
 
             },
-            emptyLog() {
-
+            copyMockUrl(event, row) {
+                let path = "";
+                for (let item of this.items) {
+                    if (item.projectId === row.projectId) {
+                        path = item.path;
+                        break;
+                    }
+                }
+                let text = this.getIpHost() + row.projectId + path + row.url;
+                this.handleClipboard(text, event);
             },
-
             getIpHost: function () {
-                return 'http://' + window.location.host + '/';
+                return 'http://' + window.location.host + '/api/';
             },
             copy: function (event, item) {
-                this.handleClipboard(item, event);
-            },
-            handleClipboard(item, event) {
                 let text = this.getIpHost() + item.projectId + item.path;
+                this.handleClipboard(text, event);
+            },
+            handleClipboard(text, event) {
                 const clipboard = new ClipboardJS(event.target, {
                     text: () => text
                 });
