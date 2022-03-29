@@ -21,5 +21,42 @@
         select * from sys_project_info where project_id = #{projectId} and path = #{path}
     </select>
 
+    <!--新增一个项目-->
+    <insert id="add" parameterType="com.bluewind.mock.module.model.SysProjectInfo">
+        insert into sys_project_info(
+        <if test="userId != null and userId != ''">user_id,</if>
+        <if test="projectName != null and projectName != ''">project_name,</if>
+        <if test="introduce != null and introduce != ''">introduce,</if>
+        <if test="path != null and path != ''">path,</if>
+        <if test="createUser != null and createUser != ''">create_user,</if>
+        project_id
+        )values(
+        <if test="userId != null and userId != ''">#{userId},</if>
+        <if test="projectName != null and projectName != ''">#{projectName},</if>
+        <if test="introduce != null and introduce != ''">#{introduce},</if>
+        <if test="path != null and path != ''">#{path},</if>
+        <if test="createUser != null and createUser != ''">#{createUser},</if>
+        #{projectId}
+        )
+    </insert>
+
+    <!--更新一个项目-->
+    <update id="update" parameterType="com.bluewind.mock.module.model.SysProjectInfo">
+        update sys_project_info
+        <set>
+            <if test="projectName != null and projectName != ''">
+                project_name = #{projectName},
+            </if>
+            <if test="introduce != null and introduce != ''">
+                introduce = #{introduce},
+            </if>
+            <if test="path != null and path != ''">
+                path = #{path},
+            </if>
+            update_user = #{updateUser}
+        </set>
+        where project_id = #{projectId}
+    </update>
+
 
 </mapper>

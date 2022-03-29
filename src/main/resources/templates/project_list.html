@@ -106,16 +106,32 @@
                     <div class="text">
                         <span>操作：</span>
                         <el-button-group>
-                            <el-tooltip effect="light" content="复制项目地址" placement="bottom">
-                                <el-button size="small" icon="el-icon-connection"
-                                           @click="copy($event, item)"></el-button>
-                            </el-tooltip>
-                            <el-tooltip effect="light" content="编辑项目" placement="bottom">
-                                <el-button size="small" icon="el-icon-edit"></el-button>
-                            </el-tooltip>
-                            <el-tooltip effect="light" content="删除项目" placement="bottom">
-                                <el-button size="small" icon="el-icon-delete"></el-button>
-                            </el-tooltip>
+                            <el-popover
+                                    placement="bottom-end"
+                                    width="100"
+                                    trigger="hover"
+                                    content="复制项目地址">
+                                <el-button slot="reference" size="small" icon="el-icon-connection" @click="copy($event, item)"></el-button>
+                            </el-popover>
+                            <el-popover
+                                    placement="bottom"
+                                    width="100"
+                                    trigger="hover"
+                                    content="编辑项目">
+                                    <el-button slot="reference" size="small" icon="el-icon-edit" @click="updateProject(item)"></el-button>
+                            </el-popover>
+                            <el-popover
+                                    placement="bottom-start"
+                                    width="160"
+                                    trigger="hover"
+                                    v-model="item.popoverVisible">
+                                <p>确定删除这个项目吗？</p>
+                                <div style="text-align: right; margin: 0">
+                                    <el-button size="mini" type="text" @click="item.popoverVisible = false">取消</el-button>
+                                    <el-button type="primary" size="mini" @click="deleteProject(item)">确定</el-button>
+                                </div>
+                                <el-button slot="reference" size="small" icon="el-icon-delete" ></el-button>
+                            </el-popover>
                         </el-button-group>
                     </div>
                 </el-card>
@@ -126,31 +142,29 @@
 
 
     <!-- 右侧悬浮按钮 -->
-    <div class="right-bottom-btn">
+    <div class="right-bottom-btn" @click="addProject">
         <i class="el-icon-plus" style="color: white; font-size: 30px; font-weight: bold"></i>
     </div>
 
     <!-- 添加或修改项目dialog框 -->
-    <el-dialog :title="projectDialogTitle" :visible.sync="projectDialog" width="500px" append-to-body>
-        <div class="app-container">
-            <el-form ref="projectForm" :model="projectForm" :rules="projectFormRules" label-width="80px">
-                <el-form-item label="项目ID" prop="projectId" v-if="ifProjectId">
-                    <el-input v-model="projectForm.projectId" disabled/>
-                </el-form-item>
-                <el-form-item label="项目名称" prop="projectName">
-                    <el-input v-model="projectForm.projectName" placeholder="请输入项目名称" />
-                </el-form-item>
-                <el-form-item label="项目路径" prop="path">
-                    <el-input v-model="projectForm.path" placeholder="请输入项目路径" />
-                </el-form-item>
-                <el-form-item label="介绍" prop="introduce">
-                    <el-input v-model="projectForm.introduce" type="textarea" placeholder="请输入介绍" />
-                </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="submitProjectForm">确 定</el-button>
-                <el-button @click="cancelProjectForm">取 消</el-button>
-            </div>
+    <el-dialog :title="projectDialogTitle" :visible.sync="projectDialog" width="500px" append-to-body :modal="false">
+        <el-form ref="projectForm" :model="projectForm" :rules="projectFormRules" label-width="80px">
+            <el-form-item label="项目ID" prop="projectId" v-if="!ifAddProject">
+                <el-input v-model="projectForm.projectId" disabled/>
+            </el-form-item>
+            <el-form-item label="项目名称" prop="projectName">
+                <el-input v-model="projectForm.projectName" placeholder="请输入项目名称" />
+            </el-form-item>
+            <el-form-item label="项目路径" prop="path">
+                <el-input v-model="projectForm.path" placeholder="请输入项目路径" />
+            </el-form-item>
+            <el-form-item label="介绍" prop="introduce">
+                <el-input v-model="projectForm.introduce" type="textarea" placeholder="请输入介绍" />
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitProjectForm">确 定</el-button>
+            <el-button @click="cancelProjectForm">取 消</el-button>
         </div>
     </el-dialog>
 
@@ -238,8 +252,8 @@
                 items: [],
                 projectDialogTitle: '',
                 projectDialog: false,
-                // 是否显示ProjectId输入框
-                ifProjectId: true,
+                // 是否是新增
+                ifAddProject: true,
                 // 项目表单数据
                 projectForm: {},
                 // 项目表单数据校验规则
@@ -254,7 +268,6 @@
                         { required: true, message: "项目路径不能为空，并且只有有一个 / ", trigger: "blur" }
                     ]
                 },
-
 
                 // 控制mock列表的dialog的显示
                 mockListDialog: false,
@@ -321,6 +334,7 @@
                     path: undefined,
                     introduce: undefined,
                 }
+                this.resetForm("projectForm");
             },
             // 表单重置
             resetForm(refName) {
@@ -330,13 +344,95 @@
             },
             // 新增或者修改项目的‘确认’按钮
             submitProjectForm() {
-
+                this.$refs["projectForm"].validate(valid => {
+                    if (valid) {
+                        if (this.ifAddProject) {
+                            axios({
+                                method: 'post',
+                                url: ctx + "project/add",
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                                },
+                                data: Qs.stringify(this.projectForm)
+                            }).then((res) => {
+                                if (res.data.code === 200) {
+                                    this.projectDialog = false;
+                                    this.$message({
+                                        message: res.data.msg,
+                                        type: 'success'
+                                    });
+                                    this.getProjectList();
+                                } else {
+                                    this.$message.error(res.data.msg);
+                                }
+                            }).catch((res) => {
+                                console.log(res);
+                            })
+                        } else {
+                            axios({
+                                method: 'post',
+                                url: ctx + "project/update",
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                                },
+                                data: Qs.stringify(this.projectForm)
+                            }).then((res) => {
+                                if (res.data.code === 200) {
+                                    this.projectDialog = false;
+                                    this.$message({
+                                        message: res.data.msg,
+                                        type: 'success'
+                                    });
+                                    this.getProjectList();
+                                } else {
+                                    this.$message.error(res.data.msg);
+                                }
+                            }).catch((res) => {
+                                console.log(res);
+                            })
+                        }
+                    }
+                });
             },
             // 新增或者修改项目的‘取消’按钮
             cancelProjectForm() {
-
+                this.projectDialog = false;
             },
-
+            addProject() {
+                this.resetProjectForm();
+                this.projectDialogTitle = "新增项目";
+                this.ifAddProject = true;
+                this.projectDialog = true;
+            },
+            updateProject(item) {
+                this.resetProjectForm();
+                this.projectDialogTitle = "修改项目";
+                this.ifAddProject = false;
+                this.projectDialog = true;
+                this.projectForm = {
+                    projectId: item.projectId,
+                    projectName: item.projectName,
+                    path: item.path,
+                    introduce: item.introduce,
+                }
+            },
+            deleteProject(item) {
+                axios({
+                    method: 'get',
+                    url: ctx + "project/delete/" + item.projectId,
+                }).then((res) => {
+                    if (res.data.code === 200) {
+                        this.$message({
+                            message: res.data.msg,
+                            type: 'success'
+                        });
+                    } else {
+                        this.$message.error(res.data.msg);
+                    }
+                }).catch((res) => {
+                    console.log(res);
+                })
+            },
             toMockList(item) {
                 this.currentProjectId = item.projectId;
                 // 每次打开，重置查询条件

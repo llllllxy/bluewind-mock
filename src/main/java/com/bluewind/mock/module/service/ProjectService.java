@@ -24,4 +24,12 @@ public class ProjectService {
     public SysProjectInfo getOne(SysProjectInfo sysProjectInfo) {
         return projectMapper.getOne(sysProjectInfo);
     }
+
+    public int add(SysProjectInfo sysProjectInfo) {
+        return projectMapper.add(sysProjectInfo);
+    }
+
+    public int update(SysProjectInfo sysProjectInfo) {
+        return projectMapper.update(sysProjectInfo);
+    }
 }

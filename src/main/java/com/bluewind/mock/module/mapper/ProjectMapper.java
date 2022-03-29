@@ -15,4 +15,8 @@ public interface ProjectMapper {
     List<SysProjectInfo> list(String userId);
 
     SysProjectInfo getOne(SysProjectInfo sysProjectInfo);
+
+    int add(SysProjectInfo sysProjectInfo);
+
+    int update(SysProjectInfo sysProjectInfo);
 }
