@@ -19,4 +19,6 @@ public interface ProjectMapper {
     int add(SysProjectInfo sysProjectInfo);
 
     int update(SysProjectInfo sysProjectInfo);
+
+    int delete(String projectId);
 }

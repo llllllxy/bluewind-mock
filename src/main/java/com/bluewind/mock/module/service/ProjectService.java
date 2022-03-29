@@ -32,4 +32,8 @@ public class ProjectService {
     public int update(SysProjectInfo sysProjectInfo) {
         return projectMapper.update(sysProjectInfo);
     }
+
+    public int delete(String projectId) {
+        return projectMapper.delete(projectId);
+    }
 }

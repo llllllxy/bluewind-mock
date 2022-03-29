@@ -87,9 +87,8 @@ public class ProjectController extends BaseController {
     @GetMapping(value = "/delete/{projectId}")
     @ResponseBody
     public Result delete(@PathVariable String projectId) {
-
-
-        return Result.ok("删除项目成功！",projectId);
+        int num = projectService.delete(projectId);
+        return Result.ok("删除项目成功！",num);
     }
 
 }

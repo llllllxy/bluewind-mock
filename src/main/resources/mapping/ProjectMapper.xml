@@ -58,5 +58,8 @@
         where project_id = #{projectId}
     </update>
 
-
+    <!--删除一个项目-->
+    <delete id="delete" parameterType="java.lang.String">
+        delete from sys_project_info where project_id = #{_parameter}
+    </delete>
 </mapper>
