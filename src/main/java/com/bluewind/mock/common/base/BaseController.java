@@ -66,8 +66,7 @@ public class BaseController {
      * @return
      */
     public static SysUserInfo getUserInfo() {
-        SysUserInfo userInfo = (SysUserInfo) getSession().getAttribute(SystemConst.SYSTEM_USER_KEY);
-        return userInfo;
+        return (SysUserInfo) getSession().getAttribute(SystemConst.SYSTEM_USER_KEY);
     }
 
     /**
