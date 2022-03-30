@@ -66,6 +66,7 @@
                         </div>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item command="userinfo">个人信息</el-dropdown-item>
+                            <el-dropdown-item command="invitationCode">邀请码</el-dropdown-item>
                             <el-dropdown-item command="exit">退出</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
@@ -132,6 +133,26 @@
                     })
                 } else if (command === 'userinfo') {
                     this.$message('click on item ' + command);
+
+                } else if (command === 'invitationCode') {
+                    axios({
+                        method: 'get',
+                        url: ctx + "getInvitationCode"
+                    }).then((res) => {
+                        if (res.data.code === 200) {
+                            this.$alert('您的推荐码为: ' + res.data.data, '推荐码', {
+                                confirmButtonText: '确定',
+                                center: true,
+                                callback: action => {
+
+                                }
+                            });
+                        } else {
+                            this.$message.error(res.data.msg);
+                        }
+                    }).catch((res) => {
+                        console.log(res);
+                    })
                 }
             },
         },

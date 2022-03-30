@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bluewind.mock.module.mapper.IndexMapper">
+    <resultMap id="SysUserInfo" type="com.bluewind.mock.module.model.SysUserInfo">
+        <id column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="account" jdbcType="VARCHAR" property="account"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="avatar" jdbcType="VARCHAR" property="avatar"/>
+        <result column="status" jdbcType="CHAR" property="status"/>
+        <result column="invitation_code" jdbcType="CHAR" property="invitationCode"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="del_flag" jdbcType="CHAR" property="delFlag"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+    </resultMap>
+
+    <select id="checkInvitationCode" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select 1 from sys_user_info
+        where invitation_code = #{_parameter}
+        limit 1
+    </select>
+
+    <update id="setInvitationCode" parameterType="com.bluewind.mock.module.model.SysUserInfo">
+        update sys_user_info set invitation_code = #{invitationCode} where user_id = #{userId}
+    </update>
+</mapper>
