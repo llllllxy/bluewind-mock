@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 /**
  * @author liuxingyu01
  * @date 2022-03-26 19:09
- * @description
+ * @description 登陆控制器
  **/
 @Controller
 public class LoginController {
@@ -27,17 +27,17 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
 
-
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
-
     /**
      * 加密盐值
      */
     @Value("${hash.salt}")
     private String salt;
+
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
 
 
     @PostMapping("/doLogin")
