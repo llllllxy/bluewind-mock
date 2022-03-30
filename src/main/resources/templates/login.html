@@ -39,14 +39,18 @@
             background-color: #464646;
         }
         .login-container {
-            width: 100%;
-            height: 100%;
+            width: 99%;
+            height: 98%;
+            position: absolute;
         }
 
         .login-page {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
             -webkit-border-radius: 5px;
             border-radius: 5px;
-            margin: 280px auto;
             width: 350px;
             padding: 35px 35px 15px;
             background: #fff;
@@ -68,7 +72,7 @@
                  ref="loginForm"
                  label-position="left"
                  label-width="0px"
-                 class="demo-ruleForm login-page">
+                 class="login-page">
             <h3 class="title">Mock平台-登陆</h3>
 
             <el-form-item prop="username">

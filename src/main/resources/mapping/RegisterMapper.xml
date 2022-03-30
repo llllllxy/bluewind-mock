@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bluewind.mock.module.mapper.RegisterMapper">
+    <resultMap id="SysUserInfo" type="com.bluewind.mock.module.model.SysUserInfo">
+        <id column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="account" jdbcType="VARCHAR" property="account"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="avatar" jdbcType="VARCHAR" property="avatar"/>
+        <result column="status" jdbcType="CHAR" property="status"/>
+        <result column="invitation_code" jdbcType="CHAR" property="invitationCode"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="del_flag" jdbcType="CHAR" property="delFlag"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+    </resultMap>
+
+    <resultMap id="SysInviteesInfo" type="com.bluewind.mock.module.model.SysInviteesInfo">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="invite_user_id" jdbcType="VARCHAR" property="inviteUserId"/>
+        <result column="invitees_user_id" jdbcType="VARCHAR" property="inviteesUserId"/>
+        <result column="invitation_code" jdbcType="VARCHAR" property="invitationCode"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <select id="checkInvitation" resultMap="SysUserInfo" parameterType="java.lang.String">
+        select * from sys_user_info
+        where invitation_code = #{_parameter}
+        limit 1
+    </select>
+
+    <!--用户注册-->
+    <insert id="register" parameterType="com.bluewind.mock.module.model.SysUserInfo">
+        insert into sys_user_info(
+        <if test="status != null and status != ''">status,</if>
+        <if test="delFlag != null and delFlag != ''">del_flag,</if>
+        <if test="account != null and account != ''">account,</if>
+        <if test="password != null and password != ''">password,</if>
+        user_id
+        )values(
+        <if test="status != null and status != ''">#{status},</if>
+        <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+        <if test="account != null and account != ''">#{account},</if>
+        <if test="password != null and password != ''">#{password},</if>
+        #{userId}
+        )
+    </insert>
+
+    <!--插入邀请日志-->
+    <insert id="registerLog" parameterType="com.bluewind.mock.module.model.SysInviteesInfo">
+        insert into sys_invitees_info(
+        <if test="inviteUserId != null and inviteUserId != ''">invite_user_id,</if>
+        <if test="inviteesUserId != null and inviteesUserId != ''">invitees_user_id,</if>
+        <if test="invitationCode != null and invitationCode != ''">invitation_code,</if>
+        id
+        )values(
+        <if test="inviteUserId != null and inviteUserId != ''">#{inviteUserId},</if>
+        <if test="inviteesUserId != null and inviteesUserId != ''">#{inviteesUserId},</if>
+        <if test="invitationCode != null and invitationCode != ''">#{invitationCode},</if>
+        #{id}
+        )
+    </insert>
+
+
+</mapper>
