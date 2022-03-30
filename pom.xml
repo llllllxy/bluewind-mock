@@ -72,11 +72,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- commons-lang3 -->
+        <!-- commons-text (这个包包含了commons-lang3，所以不需要单独再引lang3了)-->
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.11</version>
+            <artifactId>commons-text</artifactId>
+            <version>1.9</version>
         </dependency>
         <!-- commons-pool2 -->
         <dependency>
