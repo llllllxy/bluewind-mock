@@ -106,40 +106,22 @@
                     <div class="text">
                         <span>操作：</span>
                         <el-button-group>
-                            <el-popover
-                                    placement="bottom-end"
-                                    width="60"
-                                    trigger="hover"
-                                    content="复制项目地址">
-                                <el-button slot="reference" size="small" icon="el-icon-connection" @click="copy($event, item)"></el-button>
-                            </el-popover>
-                            <el-popover
-                                    placement="bottom"
-                                    width="50"
-                                    trigger="hover"
-                                    content="编辑项目">
-                                    <el-button slot="reference" size="small" icon="el-icon-edit" @click="updateProject(item)"></el-button>
-                            </el-popover>
-                            <el-popover
-                                    placement="bottom-start"
-                                    width="160"
-                                    trigger="hover"
-                                    v-model="item.popoverVisible">
-                                <p>确定删除这个项目吗？</p>
-                                <div style="text-align: right; margin: 0">
-                                    <el-button size="mini" type="text" @click="item.popoverVisible = false">取消</el-button>
-                                    <el-button type="primary" size="mini" @click="deleteProject(item)">确定</el-button>
-                                </div>
-                                <el-button slot="reference" size="small" icon="el-icon-delete" ></el-button>
-                            </el-popover>
+                            <el-tooltip effect="light" content="复制项目地址" placement="bottom">
+                                <el-button size="small" icon="el-icon-connection" @click="copy($event, item)"></el-button>
+                            </el-tooltip>
+                            <el-tooltip effect="light" content="编辑项目" placement="bottom">
+                                <el-button size="small" icon="el-icon-edit" @click="updateProject(item)"></el-button>
+                            </el-tooltip>
+                            <el-tooltip effect="light" content="删除项目" placement="bottom">
+                                <el-button size="small" icon="el-icon-delete" @click="deleteProject(item)"></el-button>
+                            </el-tooltip>
                         </el-button-group>
                     </div>
                 </el-card>
-            </el-col>
 
+            </el-col>
         </el-row>
     </div>
-
 
     <!-- 右侧悬浮按钮 -->
     <div class="right-bottom-btn" @click="addProject">
@@ -147,7 +129,7 @@
     </div>
 
     <!-- 添加或修改项目dialog框 -->
-    <el-dialog :title="projectDialogTitle" :visible.sync="projectDialog" width="500px" append-to-body :modal="false">
+    <el-dialog :title="projectDialogTitle" :visible.sync="projectDialog" width="500px" append-to-body>
         <el-form ref="projectForm" :model="projectForm" :rules="projectFormRules" label-width="80px">
             <el-form-item label="项目ID" prop="projectId" v-if="!ifAddProject">
                 <el-input v-model="projectForm.projectId" disabled/>
@@ -225,9 +207,21 @@
                 <el-table-column prop="updateTime" label="更新时间"></el-table-column>
                 <el-table-column label="操作" width="240" align="center">
                     <template slot-scope="scope">
-                        <el-button type="info" icon="el-icon-document-copy" size="mini" @click="copyMockUrl($event, scope.row)"></el-button>
-                        <el-button type="primary" icon="el-icon-edit" size="mini" @click="delOneLog(scope.row.logId)"></el-button>
-                        <el-button type="danger" icon="el-icon-delete" size="mini" @click="delOneLog(scope.row.logId)"></el-button>
+                        <el-tooltip effect="light" content="复制mock地址" placement="bottom">
+                            <el-button type="info" icon="el-icon-document-copy" size="mini" @click="copyMockUrl($event, scope.row)"></el-button>
+                        </el-tooltip>
+                        <el-tooltip effect="light" content="修改" placement="bottom">
+                            <el-button type="primary" icon="el-icon-edit" size="mini" @click="updateMock(scope.row)"></el-button>
+                        </el-tooltip>
+                        <el-popconfirm title="确定要删除这个mock吗？" @confirm="deleteMock(scope.row)">
+                            <template #reference>
+                                <div style="display: inline">
+                                <el-tooltip effect="light" content="删除" placement="bottom">
+                                    <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+                                </el-tooltip>
+                                </div>
+                            </template>
+                        </el-popconfirm>
                     </template>
                 </el-table-column>
             </el-table>
@@ -253,6 +247,22 @@
     new Vue({
         el: '#app',
         data: function () {
+            const checkPath = (rule, value, callback) => {
+                if (!!value) {
+                    if (!value.startsWith('/')) {
+                        callback(new Error('项目路径必须以/开头'))
+                    }
+                    const n = (value.split('/')).length - 1;
+                    if (n > 1) {
+                        callback(new Error('项目路径只能有一个/'))
+                    } else {
+                        callback()
+                    }
+                } else {
+                    callback(new Error('项目路径不能为空'))
+                }
+            }
+
             return {
                 activeIndex: 'myproject',
                 // 项目列表
@@ -272,7 +282,7 @@
                         { required: true, message: "项目名称不能为空", trigger: "blur" }
                     ],
                     path: [
-                        { required: true, message: "项目路径不能为空，并且只有有一个 / ", trigger: "blur" }
+                        { validator: checkPath, trigger: "blur" }
                     ]
                 },
 
@@ -441,22 +451,30 @@
                 }
             },
             deleteProject(item) {
-                axios({
-                    method: 'get',
-                    url: ctx + "project/delete/" + item.projectId,
-                }).then((res) => {
-                    if (res.data.code === 200) {
-                        this.$message({
-                            message: res.data.msg,
-                            type: 'success'
-                        });
-                        this.getProjectList();
-                    } else {
-                        this.$message.error(res.data.msg);
-                    }
-                }).catch((res) => {
-                    console.log(res);
-                })
+                this.$confirm('确定要删除该项目吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios({
+                        method: 'get',
+                        url: ctx + "project/delete/" + item.projectId,
+                    }).then((res) => {
+                        if (res.data.code === 200) {
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'success'
+                            });
+                            this.getProjectList();
+                        } else {
+                            this.$message.error(res.data.msg);
+                        }
+                    }).catch((res) => {
+                        console.log(res);
+                    })
+                }).catch(() => {
+
+                });
             },
             toMockList(item) {
                 this.currentProjectId = item.projectId;
@@ -510,7 +528,10 @@
             delLog() {
 
             },
-            delOneLog(logId) {
+            updateMock(row) {
+
+            },
+            deleteMock(row) {
 
             },
             copyMockUrl(event, row) {
