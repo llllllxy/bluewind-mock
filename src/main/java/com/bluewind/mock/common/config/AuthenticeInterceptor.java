@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * @author liuxingyu01
  * @date 2022-03-26 20:48
- * @description
+ * @description 会话拦截器
  **/
 @Component
 public class AuthenticeInterceptor implements HandlerInterceptor {

@@ -37,12 +37,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
         excludePathList.add("/js/**");
         excludePathList.add("/lib/**");
 
+        // 注册会话拦截器
         registry.addInterceptor(authenticationInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(excludePathList)
                 .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html", "/doc.html", "/service-worker.js");// 配置swagger-ui不被拦截
 
-
+        // 注册限流拦截器
         registry.addInterceptor(accessLimitInterceptor)
                 .addPathPatterns("/**");
     }
