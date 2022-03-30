@@ -5,8 +5,9 @@ import java.lang.annotation.*;
 /**
  * @author liuxingyu01
  * @date 2022-03-11-16:49
- * @description one minutes request frequency is Fifty times, exceeding the wait five minutes
- * 一分钟的请求频率是五十次，超过了，则禁止访问300秒
+ * @description 60秒最多访问两次
+ *
+ * 使用方法：@AccessLimit(seconds = 60, maxCount = 2, msg = "操作频率过高，请稍后再试")
  **/
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -28,8 +29,4 @@ public @interface AccessLimit {
      */
     String msg() default "操作频率过高！";
 
-    /**
-     * 触发限制时的惩罚时间(秒)
-     */
-    int waits() default 300;
 }
