@@ -6,11 +6,10 @@
         <result column="account" jdbcType="VARCHAR" property="account"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
-        <result column="phone" jdbcType="VARCHAR" property="phone"/>
         <result column="email" jdbcType="VARCHAR" property="email"/>
         <result column="avatar" jdbcType="VARCHAR" property="avatar"/>
-        <result column="sex" jdbcType="CHAR" property="sex"/>
         <result column="status" jdbcType="CHAR" property="status"/>
+        <result column="invitation_code" jdbcType="CHAR" property="invitationCode"/>
         <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>

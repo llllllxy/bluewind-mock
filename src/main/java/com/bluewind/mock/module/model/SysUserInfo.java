@@ -21,15 +21,13 @@ public class SysUserInfo implements Serializable {
 
     private String name;
 
-    private String phone;
-
     private String email;
 
     private String avatar;
 
-    private String sex;
-
     private String status;
+
+    private String invitationCode;
 
     private String createUser;
 
@@ -57,16 +55,8 @@ public class SysUserInfo implements Serializable {
         this.name = name;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public void setAvatar(String avatar) {
         this.avatar = avatar;
-    }
-
-    public void setSex(String sex) {
-        this.sex = sex;
     }
 
     public void setStatus(String status) {
@@ -113,20 +103,20 @@ public class SysUserInfo implements Serializable {
         return name;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
     public String getAvatar() {
         return avatar;
     }
 
-    public String getSex() {
-        return sex;
-    }
-
     public String getStatus() {
         return status;
+    }
+
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
     }
 
     public String getCreateUser() {
@@ -165,11 +155,10 @@ public class SysUserInfo implements Serializable {
                 ", account='" + account + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
-                ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
                 ", avatar='" + avatar + '\'' +
-                ", sex=" + sex + '\'' +
                 ", status=" + status + '\'' +
+                ", invitationCode=" + invitationCode + '\'' +
                 ", createUser=" + createUser +
                 ", createTime='" + createTime + '\'' +
                 ", updateUser=" + updateUser +
