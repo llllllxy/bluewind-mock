@@ -3,6 +3,7 @@
 <mapper namespace="com.bluewind.mock.module.mapper.MockMapper">
     <resultMap id="SysMockInfo" type="com.bluewind.mock.module.model.SysMockInfo">
         <id column="mock_id" jdbcType="VARCHAR" property="mockId"/>
+        <result column="mock_name" jdbcType="VARCHAR" property="mockName"/>
         <result column="project_id" jdbcType="VARCHAR" property="projectId"/>
         <result column="method" jdbcType="CHAR" property="method"/>
         <result column="introduce" jdbcType="VARCHAR" property="introduce"/>
@@ -16,7 +17,7 @@
     </resultMap>
 
     <select id="list" resultMap="SysMockInfo" parameterType="java.util.Map">
-        select mock_id, project_id, method, introduce,
+        select mock_id, mock_name, project_id, method, introduce,
         url, mockjs_flag, create_time, update_time
         from sys_mock_info
         where project_id = #{projectId}

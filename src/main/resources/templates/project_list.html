@@ -23,6 +23,11 @@
 
     <script th:src="@{/lib/clipboard.min.js}"></script>
 
+
+    <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jsoneditor/9.7.2/jsoneditor.min.css" type="text/css" rel="stylesheet" />
+
+    <script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jsoneditor/9.7.2/jsoneditor.min.js" type="application/javascript"></script>
+
     <title>Mock平台</title>
 
     <style>
@@ -81,6 +86,14 @@
         .pagination-container {
             padding: 10px 16px 16px 16px;
             float: left;
+        }
+
+        div.jsoneditor-menu a.jsoneditor-poweredBy {
+            font-size: 8pt;
+            position: absolute;
+            right: 0;
+            top: 0;
+            display: none;
         }
     </style>
 </head>
@@ -151,7 +164,7 @@
     </el-dialog>
 
     <!-- 弹出 dialog Mock列表-->
-    <el-dialog title="Mock列表" :visible.sync="mockListDialog" :fullscreen="true" append-to-body>
+    <el-dialog title="Mock列表" :visible.sync="mockListDialog" :fullscreen="true" :append-to-body="true">
         <div class="app-container">
             <div class="searchDiv">
                 <el-form ref="mockListQueryForm" :inline="true" :model="queryParams" class="demo-form-inline">
@@ -171,22 +184,21 @@
 
                 <el-row :gutter="10" class="mb8">
                     <el-col :span="1.5">
-                        <el-button type="danger" icon="el-icon-delete" @click="delLog()"
-                                   v-has-permission="['monitor:loginlog:delete']">新增
-                        </el-button>
-                        <el-button type="danger" icon="el-icon-delete" @click="delLog()"
-                                   v-has-permission="['monitor:loginlog:delete']">删除
-                        </el-button>
+                        <el-button type="danger" icon="el-icon-delete" @click="addMock()">新增</el-button>
+                        <el-button type="danger" icon="el-icon-delete" @click="delLog()">删除</el-button>
                     </el-col>
                 </el-row>
             </div>
 
-            <el-table :data="mockList" v-loading="loading" stripe>
+            <el-table :data="mockList" v-loading="loading" @selection-change="handleSelectionChange" stripe>
+                <el-table-column type="selection" width="55">
+                </el-table-column>
                 <el-table-column label="序号" type="index" width="100" align="center">
                     <template slot-scope="scope">
                         {{(queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1}}
                     </template>
                 </el-table-column>
+                <el-table-column prop="mockName" label="接口名"></el-table-column>
                 <el-table-column prop="url" label="url路径"></el-table-column>
                 <el-table-column prop="method" label="请求类型" width="100" align="center">
                     <template slot-scope="scope">
@@ -236,6 +248,68 @@
                     @current-change="handleCurrentChange"
             />
         </div>
+
+
+        <el-drawer
+                title="新增Mock"
+                :visible.sync="mockDrawer"
+                ref="mockDrawer"
+                :append-to-body="true"
+                size="70%">
+
+                <el-row>
+                    <el-col :span="9">
+                        <el-form :model="mockForm" ref="mockForm" :rules="mockFormRules" label-width="120px">
+                            <el-form-item label="接口名称" prop="mockName">
+                                <el-input v-model="mockForm.mockName" autocomplete="off" class="width1"></el-input>
+                            </el-form-item>
+
+                            <el-form-item label="类型(method)" prop="method">
+                                <el-select v-model="mockForm.method" class="width1">
+                                    <el-option label="GET" value="GET"></el-option>
+                                    <el-option label="POST" value="POST"></el-option>
+                                </el-select>
+                            </el-form-item>
+
+                            <el-form-item label="接口地址" prop="url">
+                                <el-input v-model="mockForm.url" autocomplete="off" class="width1"></el-input>
+                            </el-form-item>
+
+                            <el-form-item label="开启MockJs" prop="mockjsFlag">
+                                <el-select v-model="mockForm.mockjsFlag" class="width1">
+                                    <el-option label="不开启" value="0"></el-option>
+                                    <el-option label="开启" value="1"></el-option>
+                                </el-select>
+                            </el-form-item>
+
+                            <el-form-item label="接口介绍" prop="introduce">
+                                <el-input v-model="mockForm.introduce" type="textarea" placeholder="请输入介绍" class="width1"/>
+                            </el-form-item>
+                        </el-form>
+                    </el-col>
+
+                    <el-col :span="15">
+                        <el-row>
+                            <el-col :span="3">
+                                <div style="margin-top: 8px">
+                                    <span style="font-size: 14px;color: red">*</span>
+                                    <span style="font-size: 14px;color: #606266">接口数据</span>
+                                </div>
+                            </el-col>
+                            <el-col :span="21">
+                                <div id="jsoneditor1" style="height: 305px;width: 98%;"></div>
+                            </el-col>
+                        </el-row>
+
+                    </el-col>
+                </el-row>
+
+            <div style="position: absolute; right: 10px; bottom: 10px;">
+                <el-button @click="mockDrawer = false;drawerloading = false;">取 消</el-button>
+                <el-button type="primary" @click="submitDrawer()" :loading="drawerloading">{{ drawerloading ? '保存中 ...' : '保 存' }}</el-button>
+            </div>
+        </el-drawer>
+
     </el-dialog>
 
 </div>
@@ -285,15 +359,37 @@
                         { validator: checkPath, trigger: "blur" }
                     ]
                 },
-
+                // mock表单数据
+                mockForm: {},
+                // mock表单数据校验规则
+                mockFormRules: {
+                    method: [
+                        { required: true, message: "类型(method)不能为空", trigger: "blur" }
+                    ],
+                    jsonData: [
+                        { required: true, message: "接口数据不能为空", trigger: "blur" }
+                    ],
+                    url: [
+                        { required: true, message: "接口地址不能为空", trigger: "blur" }
+                    ],
+                    mockName: [
+                        { required: true, message: "接口名称不能为空", trigger: "blur" }
+                    ],
+                },
                 // 控制mock列表的dialog的显示
                 mockListDialog: false,
+                // 控制新增修改Mock的Drawer的显示
+                mockDrawer: false,
                 // 当前选中的项目ID
                 currentProjectId: '',
-                // 遮罩层
+                // 查询mock列表遮罩层
                 loading: false,
+                // drawer保存时候的loading
+                drawerloading: false,
                 // mock表格数据
                 mockList: [],
+                // 多选的mock数据
+                mockSelection: [],
                 // mock表格总条数
                 total: 0,
                 // mock表格查询参数
@@ -316,6 +412,7 @@
                     '0': '关闭',
                     '1': '开启'
                 },
+                editor1: undefined
             }
         },
         filters: {
@@ -369,6 +466,18 @@
                     introduce: undefined,
                 }
                 this.resetForm("projectForm");
+            },
+            resetMockForm() {
+                this.mockForm = {
+                    method: "GET",
+                    projectId: this.currentProjectId,
+                    jsonData: undefined,
+                    mockName: undefined,
+                    url: undefined,
+                    mockjsFlag: "0",
+                    introduce: undefined,
+                }
+                this.resetForm("mockForm");
             },
             // 表单重置
             resetForm(refName) {
@@ -498,6 +607,10 @@
             handleCurrentChange() {
                 this.getMockList();
             },
+            handleSelectionChange(val) {
+                this.mockSelection = val;
+                console.log(this.mockSelection);
+            },
             getMockList() {
                 this.loading = true;
                 this.queryParams.projectId = this.currentProjectId;
@@ -525,6 +638,26 @@
                     console.log(res);
                 })
             },
+            addMock() {
+                this.mockDrawer = true;
+                this.resetMockForm();
+                this.mockForm.method = "GET";
+                this.mockForm.mockjsFlag = "0";
+
+                if (!this.editor1) {
+                    this.$nextTick(()=>{
+                        let container1 = document.getElementById('jsoneditor1');
+                        let optionsOutput1 = {
+                            mode : 'code',
+                            error : function(err) {
+                                alert('EF1 ->' + err.toString());
+                            }
+                        };
+                        let json ={"sites":{"site":[{"id":"1","name":"菜鸟教程","url":"www.runoob.com"},{"id":"2","name":"菜鸟工具","url":"c.runoob.com"},{"id":"3","name":"Google","url":"www.google.com"}]}};
+                        this.editor1 = new JSONEditor(container1, optionsOutput1, json);
+                    })
+                }
+            },
             delLog() {
 
             },
@@ -533,6 +666,18 @@
             },
             deleteMock(row) {
 
+            },
+            // 确认提交接口
+            submitDrawer() {
+                if (this.drawerloading) {
+                    return;
+                }
+                this.$confirm('确定要提交吗？')
+                    .then(_ => {
+                        this.drawerloading = true;
+
+                    })
+                    .catch(_ => {});
             },
             copyMockUrl(event, row) {
                 let path = "";

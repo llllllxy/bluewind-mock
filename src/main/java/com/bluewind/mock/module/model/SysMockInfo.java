@@ -15,6 +15,8 @@ public class SysMockInfo implements Serializable {
 
     private String mockId;
 
+    private String mockName;
+
     private String projectId;
 
     private String method;
@@ -45,6 +47,14 @@ public class SysMockInfo implements Serializable {
 
     public void setMockId(String mockId) {
         this.mockId = mockId;
+    }
+
+    public String getMockName() {
+        return mockName;
+    }
+
+    public void setMockName(String mockName) {
+        this.mockName = mockName;
     }
 
     public String getProjectId() {
@@ -131,6 +141,7 @@ public class SysMockInfo implements Serializable {
     public String toString() {
         return "SysMockInfo{" +
                 "mockId='" + mockId + '\'' +
+                "mockName='" + mockName + '\'' +
                 ", projectId='" + projectId + '\'' +
                 ", method='" + method + '\'' +
                 ", introduce='" + introduce + '\'' +
