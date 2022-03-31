@@ -7,6 +7,8 @@ import com.bluewind.mock.common.util.SHA256Utils;
 import com.bluewind.mock.common.util.idgen.IdGenerate;
 import com.bluewind.mock.module.model.SysUserInfo;
 import com.bluewind.mock.module.service.RegisterService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import javax.servlet.http.HttpSession;
  * @date 2022-03-30 10:13
  * @description 注册控制器
  **/
+@Api(value = "RegisterController", description = "注册服务控制器")
 @Controller
 public class RegisterController {
     final static Logger logger = LoggerFactory.getLogger(RegisterController.class);
@@ -37,12 +40,15 @@ public class RegisterController {
     @Value("${hash.salt}")
     private String salt;
 
+
+    @ApiOperation(value = "注册页", notes = "注册页")
     @GetMapping("/register")
     public String register() {
         return "register";
     }
 
 
+    @ApiOperation(value = "注册", notes = "注册")
     @AccessLimit(seconds = 60, maxCount = 2, msg = "操作频率过高，请稍后再试")
     @PostMapping("/doRegister")
     @ResponseBody

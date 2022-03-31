@@ -5,23 +5,21 @@ import com.bluewind.mock.common.base.Result;
 import com.bluewind.mock.common.util.idgen.IdGenerate;
 import com.bluewind.mock.module.model.SysProjectInfo;
 import com.bluewind.mock.module.service.ProjectService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * @author liuxingyu01
  * @date 2022-03-26 21:24
  * @description
  **/
+@Api(value = "ProjectController", description = "项目管理控制器")
 @Controller
 @RequestMapping("/project")
 public class ProjectController extends BaseController {
@@ -29,11 +27,14 @@ public class ProjectController extends BaseController {
     @Autowired
     private ProjectService projectService;
 
+
+    @ApiOperation(value = "项目管理首页", notes = "项目管理首页")
     @GetMapping("/index")
     public String index() {
         return "project_list";
     }
 
+    @ApiOperation(value = "退出登陆", notes = "退出登陆")
     @GetMapping("/list")
     @ResponseBody
     public Result list() {
@@ -41,6 +42,7 @@ public class ProjectController extends BaseController {
         return Result.ok("退出登陆成功！",resultList);
     }
 
+    @ApiOperation(value = "新增项目", notes = "新增项目")
     @PostMapping("/add")
     @ResponseBody
     public Result add(@RequestParam("projectName") String projectName,
@@ -60,6 +62,7 @@ public class ProjectController extends BaseController {
         return Result.ok("新增项目成功！",num);
     }
 
+    @ApiOperation(value = "更新项目", notes = "更新项目")
     @PostMapping("/update")
     @ResponseBody
     public Result update(@RequestParam("projectId") String projectId,
@@ -79,11 +82,7 @@ public class ProjectController extends BaseController {
     }
 
 
-    /**
-     * 岗位信息修改
-     *
-     * @return
-     */
+    @ApiOperation(value = "删除项目", notes = "删除项目")
     @GetMapping(value = "/delete/{projectId}")
     @ResponseBody
     public Result delete(@PathVariable String projectId) {
