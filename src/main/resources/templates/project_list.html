@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -13,7 +13,7 @@
     <!-- 引入public.css -->
     <link rel="stylesheet" th:href="@{/css/public.css}">
     <!-- 引入jsoneditor的css -->
-    <link rel="stylesheet" th:href="@{/lib/jsoneditor/jsoneditor.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/lib/jsoneditor/jsoneditor.min.css}">
 
 
     <!-- 引入vue和vue-i18n的js -->
@@ -28,7 +28,13 @@
     <script th:src="@{/lib/clipboard.min.js}"></script>
     <!-- 引入jsoneditor的js -->
     <script th:src="@{/lib/jsoneditor/jsoneditor.min.js}"></script>
+    <script th:src="@{/lib/jsoneditor/jsoneditor-minimalist.min.js}"></script>
 
+
+
+<!--    <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jsoneditor/9.7.2/jsoneditor.min.css" type="text/css" rel="stylesheet" />-->
+
+<!--    <script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jsoneditor/9.7.2/jsoneditor.min.js"></script>-->
 
     <title>Mock平台</title>
 
@@ -664,8 +670,11 @@
                                 alert('EF1 ->' + err.toString());
                             }
                         };
-                        this.editor1 = new JSONEditor(container1, optionsOutput1, null);
+                        this.editor1 = new JSONEditor(container1, optionsOutput1, "");
                     })
+                } else {
+                    this.editor1.setMode("code");
+                    this.editor1.setText(null);
                 }
             },
             // 批量删除接口
@@ -692,13 +701,13 @@
                                 alert('EF1 ->' + err.toString());
                             }
                         };
-                        this.editor1 = new JSONEditor(container1, optionsOutput1, null);
+                        this.editor1 = new JSONEditor(container1, optionsOutput1, "");
                         this.editor1.setMode("code");
-                        this.editor1.setText(JSON.stringify(row.jsonData, null, 2));
+                        this.editor1.setText(row.jsonData);
                     })
                 } else {
                     this.editor1.setMode("code");
-                    this.editor1.setText(JSON.stringify(row.jsonData, null, 2));
+                    this.editor1.setText(row.jsonData);
                 }
             },
             // 单个删除接口

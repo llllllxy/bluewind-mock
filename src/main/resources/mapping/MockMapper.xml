@@ -17,8 +17,7 @@
     </resultMap>
 
     <select id="list" resultMap="SysMockInfo" parameterType="java.util.Map">
-        select mock_id, mock_name, project_id, method, introduce,
-        url, mockjs_flag, create_time, update_time
+        select *
         from sys_mock_info
         where project_id = #{projectId}
         <if test="method != null and method != ''">
