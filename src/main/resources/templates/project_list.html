@@ -10,7 +10,11 @@
     <link rel="icon" th:href="@{/images/favicon.ico}">
     <!-- 引入element-ui的css -->
     <link rel="stylesheet" th:href="@{/lib/element-ui/theme-chalk/index.css}">
+    <!-- 引入public.css -->
     <link rel="stylesheet" th:href="@{/css/public.css}">
+    <!-- 引入jsoneditor的css -->
+    <link rel="stylesheet" th:href="@{/lib/jsoneditor/jsoneditor.min.css}">
+
 
     <!-- 引入vue和vue-i18n的js -->
     <script th:src="@{/lib/vue/vue.min.js}"></script>
@@ -20,12 +24,9 @@
     <script th:src="@{/lib/qs.min.js}"></script>
     <!-- 引入element-ui的js -->
     <script th:src="@{/lib/element-ui/index.js}"></script>
-
+    <!-- 引入clipboard的js -->
     <script th:src="@{/lib/clipboard.min.js}"></script>
-
-
-    <link th:href="@{/lib/jsoneditor/jsoneditor.min.css}" type="text/css" rel="stylesheet" />
-
+    <!-- 引入jsoneditor的js -->
     <script th:src="@{/lib/jsoneditor/jsoneditor.min.js}"></script>
 
 
@@ -164,8 +165,8 @@
         </div>
     </el-dialog>
 
-    <!-- 弹出 dialog Mock列表-->
-    <el-dialog title="Mock列表" :visible.sync="mockListDialog" :fullscreen="true" :append-to-body="true">
+    <!-- 弹出 dialog 接口列表-->
+    <el-dialog title="接口列表" :visible.sync="mockListDialog" :fullscreen="true" :append-to-body="true">
         <div class="app-container">
             <div class="searchDiv">
                 <el-form ref="mockListQueryForm" :inline="true" :model="queryParams" class="demo-form-inline">
@@ -186,7 +187,7 @@
                 <el-row :gutter="10" class="mb8">
                     <el-col :span="1.5">
                         <el-button type="danger" icon="el-icon-delete" @click="addMock()">新增</el-button>
-                        <el-button type="danger" icon="el-icon-delete" @click="delLog()">删除</el-button>
+                        <el-button type="danger" icon="el-icon-delete" @click="batchDeleteMock()">批量删除</el-button>
                     </el-col>
                 </el-row>
             </div>
@@ -199,7 +200,7 @@
                         {{(queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="mockName" label="接口名"></el-table-column>
+                <el-table-column prop="mockName" label="接口名称"></el-table-column>
                 <el-table-column prop="url" label="url路径"></el-table-column>
                 <el-table-column prop="method" label="请求类型" width="100" align="center">
                     <template slot-scope="scope">
@@ -220,13 +221,13 @@
                 <el-table-column prop="updateTime" label="更新时间"></el-table-column>
                 <el-table-column label="操作" width="240" align="center">
                     <template slot-scope="scope">
-                        <el-tooltip effect="light" content="复制mock地址" placement="bottom">
+                        <el-tooltip effect="light" content="复制接口地址" placement="bottom">
                             <el-button type="info" icon="el-icon-document-copy" size="mini" @click="copyMockUrl($event, scope.row)"></el-button>
                         </el-tooltip>
                         <el-tooltip effect="light" content="修改" placement="bottom">
                             <el-button type="primary" icon="el-icon-edit" size="mini" @click="updateMock(scope.row)"></el-button>
                         </el-tooltip>
-                        <el-popconfirm title="确定要删除这个mock吗？" @confirm="deleteMock(scope.row)">
+                        <el-popconfirm title="确定要删除这个接口吗？" @confirm="deleteMock(scope.row)">
                             <template #reference>
                                 <div style="display: inline">
                                 <el-tooltip effect="light" content="删除" placement="bottom">
@@ -252,7 +253,7 @@
 
 
         <el-drawer
-                title="新增Mock"
+                title="新增接口"
                 :visible.sync="mockDrawer"
                 ref="mockDrawer"
                 :append-to-body="true"
@@ -264,25 +265,21 @@
                             <el-form-item label="接口名称" prop="mockName">
                                 <el-input v-model="mockForm.mockName" autocomplete="off" class="width1"></el-input>
                             </el-form-item>
-
                             <el-form-item label="类型(method)" prop="method">
                                 <el-select v-model="mockForm.method" class="width1">
                                     <el-option label="GET" value="GET"></el-option>
                                     <el-option label="POST" value="POST"></el-option>
                                 </el-select>
                             </el-form-item>
-
                             <el-form-item label="接口地址" prop="url">
                                 <el-input v-model="mockForm.url" autocomplete="off" class="width1"></el-input>
                             </el-form-item>
-
                             <el-form-item label="开启MockJs" prop="mockjsFlag">
                                 <el-select v-model="mockForm.mockjsFlag" class="width1">
                                     <el-option label="不开启" value="0"></el-option>
                                     <el-option label="开启" value="1"></el-option>
                                 </el-select>
                             </el-form-item>
-
                             <el-form-item label="接口介绍" prop="introduce">
                                 <el-input v-model="mockForm.introduce" type="textarea" placeholder="请输入介绍" class="width1"/>
                             </el-form-item>
@@ -445,6 +442,7 @@
             },
         },
         methods: {
+            // 获取项目列表
             getProjectList: function () {
                 axios({
                     method: 'get',
@@ -459,6 +457,7 @@
                     console.log(res);
                 })
             },
+            // 重置项目表单
             resetProjectForm() {
                 this.projectForm = {
                     projectId: undefined,
@@ -468,6 +467,7 @@
                 }
                 this.resetForm("projectForm");
             },
+            // 重置接口表单
             resetMockForm() {
                 this.mockForm = {
                     method: "GET",
@@ -542,12 +542,14 @@
             cancelProjectForm() {
                 this.projectDialog = false;
             },
+            // 打开新增项目页面
             addProject() {
                 this.resetProjectForm();
                 this.projectDialogTitle = "新增项目";
                 this.ifAddProject = true;
                 this.projectDialog = true;
             },
+            // 打开更新项目页面
             updateProject(item) {
                 this.resetProjectForm();
                 this.projectDialogTitle = "修改项目";
@@ -560,6 +562,7 @@
                     introduce: item.introduce,
                 }
             },
+            // 删除项目
             deleteProject(item) {
                 this.$confirm('确定要删除该项目吗？', '提示', {
                     confirmButtonText: '确定',
@@ -586,6 +589,7 @@
 
                 });
             },
+            // 打开接口列表页面，并且查询出接口列表
             toMockList(item) {
                 this.currentProjectId = item.projectId;
                 // 每次打开，重置查询条件
@@ -598,20 +602,25 @@
                 this.mockListDialog = true;
                 this.searchMockList();
             },
+            // 查询接口列表
             searchMockList() {
                 this.queryParams.pageNum = 1;
                 this.getMockList();
             },
+            // 处理el-table分页
             handleSizeChange() {
                 this.getMockList();
             },
+            // 处理el-table分页
             handleCurrentChange() {
                 this.getMockList();
             },
+            // 处理el-table多选
             handleSelectionChange(val) {
                 this.mockSelection = val;
                 console.log(this.mockSelection);
             },
+            // 获取接口列表axios请求
             getMockList() {
                 this.loading = true;
                 this.queryParams.projectId = this.currentProjectId;
@@ -639,6 +648,7 @@
                     console.log(res);
                 })
             },
+            // 打开新增接口页面
             addMock() {
                 this.mockDrawer = true;
                 this.resetMockForm();
@@ -654,21 +664,48 @@
                                 alert('EF1 ->' + err.toString());
                             }
                         };
-                        let json ={"sites":{"site":[{"id":"1","name":"菜鸟教程","url":"www.runoob.com"},{"id":"2","name":"菜鸟工具","url":"c.runoob.com"},{"id":"3","name":"Google","url":"www.google.com"}]}};
-                        this.editor1 = new JSONEditor(container1, optionsOutput1, json);
+                        this.editor1 = new JSONEditor(container1, optionsOutput1, null);
                     })
                 }
             },
-            delLog() {
+            // 批量删除接口
+            batchDeleteMock() {
 
             },
+            // 打开更新接口页面
             updateMock(row) {
+                this.mockDrawer = true;
+                this.resetMockForm();
+                this.mockForm.method = row.method;
+                this.mockForm.mockjsFlag = row.mockjsFlag;
+                this.mockForm.mockId = row.mockId;
+                this.mockForm.mockName = row.mockName;
+                this.mockForm.url = row.url;
+                this.mockForm.introduce = row.introduce;
 
+                if (!this.editor1) {
+                    this.$nextTick(()=>{
+                        let container1 = document.getElementById('jsoneditor1');
+                        let optionsOutput1 = {
+                            mode : 'code',
+                            error : function(err) {
+                                alert('EF1 ->' + err.toString());
+                            }
+                        };
+                        this.editor1 = new JSONEditor(container1, optionsOutput1, null);
+                        this.editor1.setMode("code");
+                        this.editor1.setText(JSON.stringify(row.jsonData, null, 2));
+                    })
+                } else {
+                    this.editor1.setMode("code");
+                    this.editor1.setText(JSON.stringify(row.jsonData, null, 2));
+                }
             },
+            // 单个删除接口
             deleteMock(row) {
 
             },
-            // 确认提交接口
+            // 确认提交接口新增或修改
             submitDrawer() {
                 if (this.drawerloading) {
                     return;
@@ -680,6 +717,7 @@
                     })
                     .catch(_ => {});
             },
+            // 复制接口地址
             copyMockUrl(event, row) {
                 let path = "";
                 for (let item of this.items) {
@@ -691,13 +729,16 @@
                 let text = this.getIpHost() + row.projectId + path + row.url;
                 this.handleClipboard(text, event);
             },
+            // 获取本机host
             getIpHost: function () {
                 return 'http://' + window.location.host + '/api/';
             },
+            // 复制到粘贴板
             copy: function (event, item) {
                 let text = this.getIpHost() + item.projectId + item.path;
                 this.handleClipboard(text, event);
             },
+            // 复制到粘贴板
             handleClipboard(text, event) {
                 const clipboard = new ClipboardJS(event.target, {
                     text: () => text
