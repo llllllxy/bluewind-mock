@@ -23,7 +23,8 @@
     <script th:src="@{/lib/element-ui/index.js}"></script>
     <!-- 引入md5的js -->
     <script th:src="@{/lib/md5.js}"></script>
-
+    <!-- 引入公共js -->
+    <script th:src="@{/js/public.js}"></script>
     <style>
         body {
             background-image: url("[[@{/}]]images/login-background.jpg");
@@ -92,7 +93,7 @@
 </body>
 
 <script type="text/javascript" th:inline="javascript">
-    let ctx = /*[[@{/}]]*/'';
+    Util.ctx = /*[[@{/}]]*/'';
 
     // 登录过期的时候，跳出ifram框架
     if (top.location != self.location) {
@@ -127,13 +128,13 @@
                             password: md5.MD5(this.loginForm.password),
                             invitationCode: this.loginForm.invitationCode,
                         }
-                        axios({
+                        $axios({
                             method: 'post',
-                            url: ctx + "doRegister",
+                            url: Util.ctx + "doRegister",
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                             },
-                            data: Qs.stringify(formdata)
+                            data: formdata
                         }).then((res) => {
                             this.logining = false;
                             console.log(res.data);
@@ -144,7 +145,7 @@
                                     type: 'success'
                                 });
                                 setTimeout(()=> {
-                                    window.location.href = ctx + "index";
+                                    window.location.href = Util.ctx + "index";
                                 }, 500);
                             } else {
                                 this.$message.error(res.data.msg);

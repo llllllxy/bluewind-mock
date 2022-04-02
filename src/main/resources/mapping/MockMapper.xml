@@ -42,4 +42,17 @@
         where project_id = #{projectId}
         and url = #{url}
     </select>
+
+    <!--删除接口-->
+    <delete id="delete" parameterType="java.lang.String">
+        delete from sys_mock_info where mock_id = #{_parameter}
+    </delete>
+
+    <!--批量删除接口-->
+    <delete id="batchDelete" parameterType="java.util.ArrayList">
+        delete from sys_mock_info where mock_id in
+        <foreach item="item" index="index" collection="mockIds" open = "(" separator = "," close = ")">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

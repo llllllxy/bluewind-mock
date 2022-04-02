@@ -27,4 +27,12 @@ public class MockService {
     public SysMockInfo getOne(SysMockInfo sysMockInfo) {
         return mockMapper.getOne(sysMockInfo);
     }
+
+    public int delete(String mockId) {
+        return mockMapper.delete(mockId);
+    }
+
+    public int batchDelete(List<String> mockIds) {
+        return mockMapper.batchDelete(mockIds);
+    }
 }

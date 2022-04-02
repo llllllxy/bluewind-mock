@@ -1,6 +1,8 @@
 package com.bluewind.mock.common.config;
 
+import com.bluewind.mock.common.base.Result;
 import com.bluewind.mock.common.consts.SystemConst;
+import com.bluewind.mock.common.util.JacksonUtils;
 import com.bluewind.mock.module.model.SysUserInfo;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -13,6 +15,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * @author liuxingyu01
@@ -35,9 +38,19 @@ public class AuthenticeInterceptor implements HandlerInterceptor {
         logger.info("AuthenticeInterceptor -- preHandle -- userInfo = {}", userInfo);
 
         if (userInfo == null) {
-            // 拦截后跳转至登录页
-            response.sendRedirect("/login");
-            System.out.println("已成功拦截并转发跳转");
+            logger.error("AuthenticeInterceptor -- preHandle -- 请求已拦截");
+            // 如果是ajax请求，直接返回302状态码
+            if (isAjaxRequest(request)) {
+                Result result = Result.create(401, "会话已失效");
+
+                response.setContentType("application/json");
+                PrintWriter out = response.getWriter();
+                out.write(JacksonUtils.writeValueAsString(result));
+                out.close();
+            } else {
+                // 拦截后跳转至登录页
+                response.sendRedirect("/login");
+            }
             return false;
         }
 
@@ -60,6 +73,55 @@ public class AuthenticeInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, Exception arg3) throws Exception {
         //System.out.println("执行到了afterCompletion方法");
+    }
+
+
+    /**
+     * 是否是Ajax异步请求
+     *
+     * @param request
+     */
+    public static boolean isAjaxRequest(HttpServletRequest request) {
+        String accept = request.getHeader("accept");
+        if (accept != null && accept.indexOf("application/json") != -1) {
+            return true;
+        }
+
+        String xRequestedWith = request.getHeader("X-Requested-With");
+        if (xRequestedWith != null && xRequestedWith.indexOf("XMLHttpRequest") != -1) {
+            return true;
+        }
+
+        String uri = request.getRequestURI();
+        if (inStringIgnoreCase(uri, ".json", ".xml")) {
+            return true;
+        }
+
+        String ajax = request.getParameter("__ajax");
+        if (inStringIgnoreCase(ajax, "json", "xml")) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * 是否包含字符串
+     *
+     * @param str  验证字符串
+     * @param strs 字符串组
+     * @return 包含返回true
+     */
+    public static boolean inStringIgnoreCase(String str, String... strs) {
+        if (str != null && strs != null) {
+            for (String s : strs) {
+                if (str.equalsIgnoreCase(StringUtils.trim(s))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

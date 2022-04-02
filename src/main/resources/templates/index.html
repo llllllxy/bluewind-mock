@@ -20,7 +20,8 @@
     <script th:src="@{/lib/qs.min.js}"></script>
     <!-- 引入element-ui的js -->
     <script th:src="@{/lib/element-ui/index.js}"></script>
-
+    <!-- 引入公共js -->
+    <script th:src="@{/js/public.js}"></script>
     <title>Mock平台</title>
 
     <style>
@@ -87,14 +88,14 @@
 </body>
 
 <script type="text/javascript" th:inline="javascript">
-    let ctx = /*[[@{/}]]*/'';
+    Util.ctx = /*[[@{/}]]*/'';
 
     new Vue({
         el: '#app',
         data: function () {
             return {
                 activeIndex: 'myproject',
-                optionsHref: ctx + 'project/index',
+                optionsHref: Util.ctx + 'project/index',
                 items: [],
             }
         },
@@ -104,7 +105,7 @@
             },
             handleSelect: function (key, keyPath) {
                 if (key === 'myproject') {
-                    this.optionsHref = ctx + 'project/index'
+                    this.optionsHref = Util.ctx + 'project/index'
                 } else if (key === 'mydata') {
                     this.$message('拼命开发中！');
                 } else if (key === 'myother') {
@@ -113,9 +114,9 @@
             },
             handleDropdown: function (command) {
                 if (command === 'exit') {
-                    axios({
+                    $axios({
                         method: 'get',
-                        url: ctx + "logout"
+                        url: Util.ctx + "logout"
                     }).then((res) => {
                         if (res.data.code === 200) {
                             this.$message({
@@ -123,7 +124,7 @@
                                 type: 'success'
                             });
                             setTimeout(()=> {
-                                window.location.href = ctx + "login";
+                                window.location.href = Util.ctx + "login";
                             }, 600);
                         } else {
                             this.$message.error(res.data.msg);
@@ -135,9 +136,9 @@
                     this.$message('click on item ' + command);
 
                 } else if (command === 'invitationCode') {
-                    axios({
+                    $axios({
                         method: 'get',
-                        url: ctx + "getInvitationCode"
+                        url: Util.ctx + "getInvitationCode"
                     }).then((res) => {
                         if (res.data.code === 200) {
                             this.$alert('您的推荐码为: ' + res.data.data, '推荐码', {

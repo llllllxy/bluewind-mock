@@ -29,12 +29,8 @@
     <!-- 引入jsoneditor的js -->
     <script th:src="@{/lib/jsoneditor/jsoneditor.min.js}"></script>
     <script th:src="@{/lib/jsoneditor/jsoneditor-minimalist.min.js}"></script>
-
-
-
-<!--    <link href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jsoneditor/9.7.2/jsoneditor.min.css" type="text/css" rel="stylesheet" />-->
-
-<!--    <script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/jsoneditor/9.7.2/jsoneditor.min.js"></script>-->
+    <!-- 引入公共js -->
+    <script th:src="@{/js/public.js}"></script>
 
     <title>Mock平台</title>
 
@@ -320,7 +316,7 @@
 </body>
 
 <script type="text/javascript" th:inline="javascript">
-    let ctx = /*[[@{/}]]*/'';
+    Util.ctx = /*[[@{/}]]*/'';
 
     new Vue({
         el: '#app',
@@ -450,9 +446,9 @@
         methods: {
             // 获取项目列表
             getProjectList: function () {
-                axios({
+                $axios({
                     method: 'get',
-                    url: ctx + "project/list"
+                    url: Util.ctx + "project/list"
                 }).then((res) => {
                     if (res.data.code === 200) {
                         this.items = res.data.data;
@@ -497,13 +493,13 @@
                 this.$refs["projectForm"].validate(valid => {
                     if (valid) {
                         if (this.ifAddProject) {
-                            axios({
+                            $axios({
                                 method: 'post',
-                                url: ctx + "project/add",
+                                url: Util.ctx + "project/add",
                                 headers: {
                                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                                 },
-                                data: Qs.stringify(this.projectForm)
+                                data: this.projectForm
                             }).then((res) => {
                                 if (res.data.code === 200) {
                                     this.projectDialog = false;
@@ -519,13 +515,13 @@
                                 console.log(res);
                             })
                         } else {
-                            axios({
+                            $axios({
                                 method: 'post',
-                                url: ctx + "project/update",
+                                url: Util.ctx + "project/update",
                                 headers: {
                                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                                 },
-                                data: Qs.stringify(this.projectForm)
+                                data: this.projectForm
                             }).then((res) => {
                                 if (res.data.code === 200) {
                                     this.projectDialog = false;
@@ -575,9 +571,9 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    axios({
+                    $axios({
                         method: 'get',
-                        url: ctx + "project/delete/" + item.projectId,
+                        url: Util.ctx + "project/delete/" + item.projectId,
                     }).then((res) => {
                         if (res.data.code === 200) {
                             this.$message({
@@ -630,13 +626,13 @@
             getMockList() {
                 this.loading = true;
                 this.queryParams.projectId = this.currentProjectId;
-                axios({
+                $axios({
                     method: 'post',
-                    url: ctx + "mock/list",
+                    url: Util.ctx + "mock/list",
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                     },
-                    data: Qs.stringify(this.queryParams)
+                    data: this.queryParams
                 }).then((res) => {
                     this.loading = false;
                     if (res.data.code === 200) {
@@ -658,19 +654,18 @@
             addMock() {
                 this.mockDrawer = true;
                 this.resetMockForm();
-                this.mockForm.method = "GET";
-                this.mockForm.mockjsFlag = "0";
 
                 if (!this.editor1) {
                     this.$nextTick(()=>{
                         let container1 = document.getElementById('jsoneditor1');
                         let optionsOutput1 = {
                             mode : 'code',
-                            error : function(err) {
-                                alert('EF1 ->' + err.toString());
+                            error : (err)=> {
+                                this.$message.error('EF1 ->' + err.toString());
                             }
                         };
                         this.editor1 = new JSONEditor(container1, optionsOutput1, "");
+                        this.editor1.setText(null);
                     })
                 } else {
                     this.editor1.setMode("code");
@@ -679,7 +674,38 @@
             },
             // 批量删除接口
             batchDeleteMock() {
+                this.$confirm('确定要批量删除所有选中的接口吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let mockIds = [];
+                    for (let item of this.mockSelection) {
+                        mockIds.push(item.mockId);
+                    }
+                    $axios({
+                        method: 'post',
+                        url: Util.ctx + "mock/batchDelete",
+                        headers: {
+                            'Content-Type': 'application/json; charset=UTF-8'
+                        },
+                        data: mockIds
+                    }).then((res) => {
+                        if (res.data.code === 200) {
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'success'
+                            });
+                            this.searchMockList();
+                        } else {
+                            this.$message.error(res.data.msg);
+                        }
+                    }).catch((res) => {
+                        console.log(res);
+                    })
+                }).catch(() => {
 
+                });
             },
             // 打开更新接口页面
             updateMock(row) {
@@ -697,8 +723,8 @@
                         let container1 = document.getElementById('jsoneditor1');
                         let optionsOutput1 = {
                             mode : 'code',
-                            error : function(err) {
-                                alert('EF1 ->' + err.toString());
+                            error : (err)=> {
+                                this.$message.error('EF1 ->' + err.toString());
                             }
                         };
                         this.editor1 = new JSONEditor(container1, optionsOutput1, "");
@@ -712,7 +738,30 @@
             },
             // 单个删除接口
             deleteMock(row) {
+                this.$confirm('确定要删除该接口吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    $axios({
+                        method: 'get',
+                        url: Util.ctx + "mock/delete/" + row.mockId,
+                    }).then((res) => {
+                        if (res.data.code === 200) {
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'success'
+                            });
+                            this.searchMockList();
+                        } else {
+                            this.$message.error(res.data.msg);
+                        }
+                    }).catch((res) => {
+                        console.log(res);
+                    })
+                }).catch(() => {
 
+                });
             },
             // 确认提交接口新增或修改
             submitDrawer() {
