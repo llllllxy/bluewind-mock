@@ -172,6 +172,10 @@
         <div class="app-container">
             <div class="searchDiv">
                 <el-form ref="mockListQueryForm" :inline="true" :model="queryParams" class="demo-form-inline">
+                    <el-form-item label="接口名称">
+                        <el-input type="text" placeholder="请输入接口名称" clearable v-model="queryParams.mockName"
+                                  class="width1"></el-input>
+                    </el-form-item>
                     <el-form-item label="url路径">
                         <el-input type="text" placeholder="请输入url路径" clearable v-model="queryParams.url"
                                   class="width1"></el-input>
@@ -195,9 +199,9 @@
             </div>
 
             <el-table :data="mockList" v-loading="loading" @selection-change="handleSelectionChange" stripe>
-                <el-table-column type="selection" width="55">
+                <el-table-column type="selection" width="50">
                 </el-table-column>
-                <el-table-column label="序号" type="index" width="100" align="center">
+                <el-table-column label="序号" type="index" width="50" align="center">
                     <template slot-scope="scope">
                         {{(queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1}}
                     </template>
@@ -229,15 +233,9 @@
                         <el-tooltip effect="light" content="修改" placement="bottom">
                             <el-button type="primary" icon="el-icon-edit" size="mini" @click="updateMock(scope.row)"></el-button>
                         </el-tooltip>
-                        <el-popconfirm title="确定要删除这个接口吗？" @confirm="deleteMock(scope.row)">
-                            <template #reference>
-                                <div style="display: inline">
-                                <el-tooltip effect="light" content="删除" placement="bottom">
-                                    <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
-                                </el-tooltip>
-                                </div>
-                            </template>
-                        </el-popconfirm>
+                        <el-tooltip effect="light" content="删除" placement="bottom">
+                            <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteMock(scope.row)"></el-button>
+                        </el-tooltip>
                     </template>
                 </el-table-column>
             </el-table>
@@ -396,6 +394,7 @@
                 queryParams: {
                     pageNum: 1,
                     pageSize: 5,
+                    mockName: undefined,
                     url: undefined,
                     method: undefined
                 },

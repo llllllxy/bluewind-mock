@@ -21,10 +21,13 @@
         from sys_mock_info
         where project_id = #{projectId}
         <if test="method != null and method != ''">
-            and method like CONCAT('%',#{method},'%')
+            and method = #{method}
         </if>
         <if test="url != null and url != ''">
             and url like CONCAT('%',#{url},'%')
+        </if>
+        <if test="mockName != null and mockName != ''">
+            and mock_name like CONCAT('%',#{mockName},'%')
         </if>
         <choose>
             <when test="sortName != null and sortName != '' and sortOrder != null and sortOrder != ''">

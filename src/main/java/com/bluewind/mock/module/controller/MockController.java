@@ -40,6 +40,7 @@ public class MockController extends BaseController {
                        @RequestParam("pageSize") Integer pageSize,
                        @RequestParam(required = false, defaultValue = "", value = "url") String url,
                        @RequestParam(required = false, defaultValue = "", value = "method") String method,
+                       @RequestParam(required = false, defaultValue = "", value = "mockName") String mockName,
                        @RequestParam(required = false, defaultValue = "", value = "sortName") String sortName,
                        @RequestParam(required = false, defaultValue = "", value = "sortOrder") String sortOrder) {
         //分页查询
@@ -50,6 +51,7 @@ public class MockController extends BaseController {
         Map<String, String> paraMap = new HashMap<>();
         paraMap.put("projectId", projectId);
         paraMap.put("method", method);
+        paraMap.put("mockName", mockName);
         paraMap.put("url", url);
         paraMap.put("sortName", sortName);
         paraMap.put("sortOrder", sortOrder);
@@ -79,7 +81,7 @@ public class MockController extends BaseController {
 
 
     @ApiOperation(value = "批量删除接口", notes = "批量删除接口")
-    @PostMapping(value = "/delete")
+    @PostMapping(value = "/batchDelete")
     @ResponseBody
     public Result batchDelete(@RequestBody List<String> mockIds) {
         int num = mockService.batchDelete(mockIds);
