@@ -23,4 +23,8 @@ public interface MockMapper {
 
     int batchDelete(@Param("mockIds")List<String> mockIds);
 
+    int add(SysMockInfo sysMockInfo);
+
+    int update(SysMockInfo sysMockInfo);
+
 }

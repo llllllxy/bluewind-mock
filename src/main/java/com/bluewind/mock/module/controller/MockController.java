@@ -2,7 +2,9 @@ package com.bluewind.mock.module.controller;
 
 import com.bluewind.mock.common.base.BaseController;
 import com.bluewind.mock.common.base.Result;
+import com.bluewind.mock.common.util.idgen.IdGenerate;
 import com.bluewind.mock.module.model.SysMockInfo;
+import com.bluewind.mock.module.model.SysUserInfo;
 import com.bluewind.mock.module.service.MockService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -86,6 +88,59 @@ public class MockController extends BaseController {
     public Result batchDelete(@RequestBody List<String> mockIds) {
         int num = mockService.batchDelete(mockIds);
         return Result.ok("批量删除接口成功！", num);
+    }
+
+
+    @ApiOperation(value = "新增接口", notes = "新增接口")
+    @PostMapping("/add")
+    @ResponseBody
+    public Result add(@RequestParam("projectId") String projectId,
+                      @RequestParam("method") String method,
+                      @RequestParam("mockName") String mockName,
+                      @RequestParam("url") String url,
+                      @RequestParam("mockjsFlag") String mockjsFlag,
+                      @RequestParam(required = false, defaultValue = "", value = "introduce") String introduce,
+                      @RequestParam(required = false, defaultValue = "", value = "jsonData") String jsonData) {
+        String mockId = IdGenerate.nextId();
+        SysMockInfo sysMockInfo = new SysMockInfo();
+        sysMockInfo.setProjectId(projectId);
+        sysMockInfo.setMockId(mockId);
+        sysMockInfo.setMethod(method);
+        sysMockInfo.setUrl(url);
+        sysMockInfo.setMockName(mockName);
+        sysMockInfo.setMockjsFlag(mockjsFlag);
+        sysMockInfo.setIntroduce(introduce);
+        sysMockInfo.setJsonData(jsonData);
+        sysMockInfo.setCreateUser(getUserId());
+        int num = mockService.add(sysMockInfo);
+
+        return Result.ok("新增接口成功！",num);
+    }
+
+    @ApiOperation(value = "更新接口", notes = "更新接口")
+    @PostMapping("/update")
+    @ResponseBody
+    public Result update(@RequestParam("projectId") String projectId,
+                         @RequestParam("mockId") String mockId,
+                         @RequestParam("method") String method,
+                         @RequestParam("mockName") String mockName,
+                         @RequestParam("url") String url,
+                         @RequestParam("mockjsFlag") String mockjsFlag,
+                         @RequestParam(required = false, defaultValue = "", value = "introduce") String introduce,
+                         @RequestParam(required = false, defaultValue = "", value = "jsonData") String jsonData) {
+        SysMockInfo sysMockInfo = new SysMockInfo();
+        sysMockInfo.setProjectId(projectId);
+        sysMockInfo.setMockId(mockId);
+        sysMockInfo.setMethod(method);
+        sysMockInfo.setUrl(url);
+        sysMockInfo.setMockName(mockName);
+        sysMockInfo.setMockjsFlag(mockjsFlag);
+        sysMockInfo.setIntroduce(introduce);
+        sysMockInfo.setJsonData(jsonData);
+        sysMockInfo.setUpdateUser(getUserId());
+        int num = mockService.update(sysMockInfo);
+
+        return Result.ok("修改接口成功！",num);
     }
 
 

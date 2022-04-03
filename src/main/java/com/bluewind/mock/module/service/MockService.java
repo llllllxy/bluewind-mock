@@ -35,4 +35,12 @@ public class MockService {
     public int batchDelete(List<String> mockIds) {
         return mockMapper.batchDelete(mockIds);
     }
+
+    public int add(SysMockInfo sysMockInfo) {
+        return mockMapper.add(sysMockInfo);
+    }
+
+    public int update(SysMockInfo sysMockInfo) {
+        return mockMapper.update(sysMockInfo);
+    }
 }

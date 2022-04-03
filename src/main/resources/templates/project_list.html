@@ -343,6 +343,8 @@
                 projectDialog: false,
                 // 是否是新增
                 ifAddProject: true,
+                // 是否接口新增
+                ifAddMock: true,
                 // 项目表单数据
                 projectForm: {},
                 // 项目表单数据校验规则
@@ -652,6 +654,7 @@
             // 打开新增接口页面
             addMock() {
                 this.mockDrawer = true;
+                this.ifAddMock = true;
                 this.resetMockForm();
 
                 if (!this.editor1) {
@@ -709,6 +712,7 @@
             // 打开更新接口页面
             updateMock(row) {
                 this.mockDrawer = true;
+                this.ifAddMock = false;
                 this.resetMockForm();
                 this.mockForm.method = row.method;
                 this.mockForm.mockjsFlag = row.mockjsFlag;
@@ -716,6 +720,7 @@
                 this.mockForm.mockName = row.mockName;
                 this.mockForm.url = row.url;
                 this.mockForm.introduce = row.introduce;
+                this.mockForm.jsonData = row.jsonData;
 
                 if (!this.editor1) {
                     this.$nextTick(()=>{
@@ -767,12 +772,66 @@
                 if (this.drawerloading) {
                     return;
                 }
-                this.$confirm('确定要提交吗？')
-                    .then(_ => {
-                        this.drawerloading = true;
-
-                    })
-                    .catch(_ => {});
+                this.$refs.mockForm.validate((valid) => {
+                    if(valid) {
+                        this.$confirm('确定要提交吗？')
+                            .then(_ => {
+                                this.drawerloading = true;
+                                if (this.ifAddMock) {
+                                    this.mockForm.jsonData = this.editor1.getText();
+                                    $axios({
+                                        method: 'post',
+                                        url: Util.ctx + "mock/add",
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                                        },
+                                        data: this.mockForm
+                                    }).then((res) => {
+                                        if (res.data.code === 200) {
+                                            this.drawerloading = false;
+                                            this.mockDrawer = false;
+                                            this.$message({
+                                                message: res.data.msg,
+                                                type: 'success'
+                                            });
+                                            this.searchMockList();
+                                        } else {
+                                            this.$message.error(res.data.msg);
+                                        }
+                                    }).catch((res) => {
+                                        console.log(res);
+                                    })
+                                } else {
+                                    this.mockForm.jsonData = this.editor1.getText();
+                                    $axios({
+                                        method: 'post',
+                                        url: Util.ctx + "mock/update",
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                                        },
+                                        data: this.mockForm
+                                    }).then((res) => {
+                                        if (res.data.code === 200) {
+                                            this.drawerloading = false;
+                                            this.mockDrawer = false;
+                                            this.$message({
+                                                message: res.data.msg,
+                                                type: 'success'
+                                            });
+                                            this.searchMockList();
+                                        } else {
+                                            this.$message.error(res.data.msg);
+                                        }
+                                    }).catch((res) => {
+                                        console.log(res);
+                                    })
+                                }
+                            }).catch(_ => {});
+                    } else {
+                        console.log('error submit!');
+                        return false;
+                    }
+                })
             },
             // 复制接口地址
             copyMockUrl(event, row) {

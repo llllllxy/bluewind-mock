@@ -58,4 +58,57 @@
             #{item}
         </foreach>
     </delete>
+
+    <!--新增一个接口-->
+    <insert id="add" parameterType="com.bluewind.mock.module.model.SysMockInfo">
+        insert into sys_mock_info(
+        <if test="method != null and method != ''">method,</if>
+        <if test="mockName != null and mockName != ''">mock_name,</if>
+        <if test="introduce != null and introduce != ''">introduce,</if>
+        <if test="url != null and url != ''">url,</if>
+        <if test="createUser != null and createUser != ''">create_user,</if>
+        <if test="mockjsFlag != null and mockjsFlag != ''">mockjs_flag,</if>
+        <if test="jsonData != null and jsonData != ''">json_data,</if>
+        mock_id,
+        project_id
+        )values(
+        <if test="method != null and method != ''">#{method},</if>
+        <if test="mockName != null and mockName != ''">#{mockName},</if>
+        <if test="introduce != null and introduce != ''">#{introduce},</if>
+        <if test="url != null and url != ''">#{url},</if>
+        <if test="createUser != null and createUser != ''">#{createUser},</if>
+        <if test="mockjsFlag != null and mockjsFlag != ''">#{mockjsFlag},</if>
+        <if test="jsonData != null and jsonData != ''">#{jsonData},</if>
+        #{mockId},
+        #{projectId}
+        )
+    </insert>
+
+    <!--更新一个接口-->
+    <update id="update" parameterType="com.bluewind.mock.module.model.SysMockInfo">
+        update sys_mock_info
+        <set>
+            <if test="method != null and method != ''">
+                method = #{method},
+            </if>
+            <if test="mockName != null and mockName != ''">
+                mock_name = #{mockName},
+            </if>
+            <if test="introduce != null and introduce != ''">
+                introduce = #{introduce},
+            </if>
+            <if test="url != null and url != ''">
+                url = #{url},
+            </if>
+            <if test="mockjsFlag != null and mockjsFlag != ''">
+                mockjs_flag = #{mockjsFlag},
+            </if>
+            <if test="jsonData != null and jsonData != ''">
+                json_data = #{jsonData},
+            </if>
+            update_user = #{updateUser}
+        </set>
+        where mock_id = #{mockId}
+        and project_id = #{projectId}
+    </update>
 </mapper>
