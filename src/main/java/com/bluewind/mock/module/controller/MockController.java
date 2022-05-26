@@ -4,7 +4,6 @@ import com.bluewind.mock.common.base.BaseController;
 import com.bluewind.mock.common.base.Result;
 import com.bluewind.mock.common.util.idgen.IdGenerate;
 import com.bluewind.mock.module.model.SysMockInfo;
-import com.bluewind.mock.module.model.SysUserInfo;
 import com.bluewind.mock.module.service.MockService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -67,7 +66,7 @@ public class MockController extends BaseController {
         int total = (int) pageinfo.getTotal();
         Map<String, Object> result = new HashMap<>();
         result.put(RESULT_ROWS, rows);
-        result.put(RESULT_TOTLAL, total);
+        result.put(RESULT_TOTAL, total);
 
         return Result.ok("获取mock列表成功！", result);
     }
