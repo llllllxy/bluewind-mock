@@ -16,6 +16,7 @@ public class IdGenerate {
 
     /**
      * 获取普通uuid（小写不带横线）
+     *
      * @return
      */
     public static String uuid() {
@@ -24,6 +25,7 @@ public class IdGenerate {
 
     /**
      * 获取普通UUID（大写不带横线）
+     *
      * @return
      */
     public static String UUID() {
@@ -48,11 +50,6 @@ public class IdGenerate {
         return UUID.fastUUID().toString(true).toUpperCase();
     }
 
-    public static String getInnerIdByLength(int length) {
-        UUIDGenerator uuid = new UUIDGenerator();
-        return uuid.getNextSeqId(length).toString();
-    }
-
 
     /**
      * 获取雪花算法id
@@ -63,6 +60,7 @@ public class IdGenerate {
         return String.valueOf(idWorker.nextId());
     }
 
+
     /**
      * 获取雪花算法id
      *
@@ -71,6 +69,7 @@ public class IdGenerate {
     public static long nextLongId() {
         return idWorker.nextId();
     }
+
 
     public static String nextCode(String code) {
         if (code == null) {
@@ -100,6 +99,7 @@ public class IdGenerate {
 
     /**
      * 测试
+     *
      * @param args
      */
     public static void main(String[] args) {
